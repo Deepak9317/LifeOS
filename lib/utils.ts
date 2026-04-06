@@ -1,5 +1,17 @@
 import { clsx, type ClassValue } from "clsx";
-import { format, isToday, isTomorrow, isYesterday, parseISO } from "date-fns";
+import {
+  addDays,
+  endOfMonth,
+  endOfWeek,
+  format,
+  isSameDay,
+  isToday,
+  isTomorrow,
+  isYesterday,
+  parseISO,
+  startOfMonth,
+  startOfWeek
+} from "date-fns";
 import { twMerge } from "tailwind-merge";
 
 import { PINNED_TAG, PRIORITY_ORDER } from "@/lib/constants";
@@ -57,6 +69,125 @@ export function toDateTimeLocalValue(date?: string | null) {
 export function formatFullDate(date: string) {
   const parsed = safeDate(date);
   return parsed ? format(parsed, "MMM d, yyyy") : "Unknown";
+}
+
+export function formatTimeInZone(
+  date: Date,
+  timeZone: string,
+  options?: Partial<Intl.DateTimeFormatOptions>
+) {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    ...options
+  }).format(date);
+}
+
+export function formatDateInZone(
+  date: Date,
+  timeZone: string,
+  options?: Partial<Intl.DateTimeFormatOptions>
+) {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    ...options
+  }).format(date);
+}
+
+function parseOffsetString(offset: string) {
+  if (offset === "GMT" || offset === "UTC") {
+    return 0;
+  }
+
+  const match = offset.match(/GMT([+-])(\d{1,2})(?::?(\d{2}))?/);
+
+  if (!match) {
+    return 0;
+  }
+
+  const sign = match[1] === "-" ? -1 : 1;
+  const hours = Number(match[2] ?? 0);
+  const minutes = Number(match[3] ?? 0);
+
+  return sign * (hours * 60 + minutes);
+}
+
+export function getTimeZoneOffsetMinutes(date: Date, timeZone: string) {
+  const offsetLabel =
+    new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      timeZoneName: "shortOffset",
+      hour: "2-digit"
+    })
+      .formatToParts(date)
+      .find((part) => part.type === "timeZoneName")?.value ?? "GMT";
+
+  return parseOffsetString(offsetLabel);
+}
+
+export function zonedDateFromLocalInput(value: string, timeZone: string) {
+  const match = value.match(
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/
+  );
+
+  if (!match) {
+    return null;
+  }
+
+  const [, year, month, day, hour, minute] = match;
+  const utcGuess = Date.UTC(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+    Number(hour),
+    Number(minute)
+  );
+
+  const firstOffset = getTimeZoneOffsetMinutes(new Date(utcGuess), timeZone);
+  let normalized = utcGuess - firstOffset * 60_000;
+  const refinedOffset = getTimeZoneOffsetMinutes(new Date(normalized), timeZone);
+
+  if (refinedOffset !== firstOffset) {
+    normalized = utcGuess - refinedOffset * 60_000;
+  }
+
+  return new Date(normalized);
+}
+
+export function toLocalDateTimeInput(date: Date) {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+  const hours = `${date.getHours()}`.padStart(2, "0");
+  const minutes = `${date.getMinutes()}`.padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+export function buildCalendarDays(anchorDate: Date) {
+  const monthStart = startOfMonth(anchorDate);
+  const monthEnd = endOfMonth(anchorDate);
+  const gridStart = startOfWeek(monthStart, { weekStartsOn: 1 });
+  const gridEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
+  const days: Date[] = [];
+  let current = gridStart;
+
+  while (current <= gridEnd) {
+    days.push(current);
+    current = addDays(current, 1);
+  }
+
+  return days;
+}
+
+export function isTaskDueOnDate(task: Task, date: Date) {
+  const parsed = safeDate(task.due_date);
+  return parsed ? isSameDay(parsed, date) : false;
 }
 
 export function normalizeTags(value: string | string[]) {

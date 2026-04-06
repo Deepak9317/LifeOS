@@ -6,6 +6,7 @@ import { CheckCircle2, ClipboardList, Plus, SlidersHorizontal } from "lucide-rea
 import { toast } from "sonner";
 
 import { TaskForm } from "@/components/task-form";
+import { TaskCalendar } from "@/components/task-calendar";
 import { SetupNotice } from "@/components/setup-notice";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -90,20 +91,20 @@ export function TasksWorkspace({
 
   return (
     <div className="space-y-8 p-1">
-      <section className="rounded-[2rem] bg-slate-950 px-6 py-8 text-white">
+      <section className="animate-fade-up rounded-[2rem] border border-white/90 bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(236,254,255,0.92)_45%,rgba(240,253,244,0.92))] px-6 py-8 text-slate-950 shadow-[0_24px_70px_-40px_rgba(15,23,42,0.2)]">
         <div className="grid gap-5 lg:grid-cols-4">
           <div className="lg:col-span-2">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-300">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-700">
               Tasks workspace
             </p>
             <h1 className="mt-3 text-4xl font-bold tracking-tight">Tasks</h1>
           </div>
-          <Card className="border-white/10 bg-white/10 text-white">
-            <p className="text-sm text-slate-200">Today</p>
+          <Card className="border-cyan-100 bg-white/75 text-slate-950">
+            <p className="text-sm text-slate-500">Today</p>
             <p className="mt-4 text-4xl font-bold">{summary.today}</p>
           </Card>
-          <Card className="border-white/10 bg-white/10 text-white">
-            <p className="text-sm text-slate-200">Pending</p>
+          <Card className="border-emerald-100 bg-white/75 text-slate-950">
+            <p className="text-sm text-slate-500">Pending</p>
             <p className="mt-4 text-4xl font-bold">{summary.pending}</p>
           </Card>
         </div>
@@ -114,6 +115,7 @@ export function TasksWorkspace({
       {setupIssue ? null : (
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(340px,0.9fr)]">
         <div className="space-y-6">
+          <TaskCalendar compact tasks={tasks} />
           <Card className="space-y-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>

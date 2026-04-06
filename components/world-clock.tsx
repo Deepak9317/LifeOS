@@ -8,32 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DEFAULT_WORLD_CLOCKS, WORLD_TIMEZONES } from "@/lib/constants";
-import { cn } from "@/lib/utils";
+import { cn, formatDateInZone, formatTimeInZone } from "@/lib/utils";
 
 const STORAGE_KEY = "lifeos-world-clock";
 
-function formatTime(date: Date, timeZone: string) {
-  return new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true
-  }).format(date);
-}
-
-function formatDate(date: Date, timeZone: string) {
-  return new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    weekday: "short",
-    month: "short",
-    day: "numeric"
-  }).format(date);
-}
-
 export function WorldClock({ className }: { className?: string }) {
   const [now, setNow] = useState(() => new Date());
-  const [active, setActive] = useState<string[]>(DEFAULT_WORLD_CLOCKS);
+  const [active, setActive] = useState<string[]>([...DEFAULT_WORLD_CLOCKS]);
 
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
@@ -70,15 +51,15 @@ export function WorldClock({ className }: { className?: string }) {
   };
 
   return (
-    <Card className={cn("space-y-6", className)}>
+    <Card className={cn("card-hover animate-fade-up space-y-6 border-cyan-100 bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(236,254,255,0.95))] [animation-delay:150ms]", className)}>
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-600">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-700">
             World clock
           </p>
-          <h2 className="mt-2 text-2xl font-bold text-slate-950">Keep key timezones close</h2>
+          <h2 className="mt-2 text-2xl font-bold text-slate-950">World clocks</h2>
         </div>
-        <Badge className="bg-slate-950 text-white ring-slate-950/10">
+        <Badge className="bg-cyan-500/10 text-cyan-700 ring-cyan-500/15">
           <Clock3 className="mr-1 size-3.5" />
           Live
         </Badge>
@@ -93,7 +74,7 @@ export function WorldClock({ className }: { className?: string }) {
               key={zone.key}
               className={cn(
                 "rounded-full",
-                isActive ? "bg-teal-500 text-white hover:bg-teal-400" : ""
+                isActive ? "bg-cyan-600 text-white hover:bg-cyan-500" : ""
               )}
               onClick={() => toggleZone(zone.key)}
               size="sm"
@@ -109,17 +90,19 @@ export function WorldClock({ className }: { className?: string }) {
         {WORLD_TIMEZONES.filter((zone) => active.includes(zone.key)).map((zone) => (
           <div
             key={zone.key}
-            className="rounded-[1.75rem] border border-slate-200 bg-slate-950 p-5 text-white"
+            className="rounded-[1.75rem] border border-cyan-100 bg-white/85 p-5 text-slate-950 ring-1 ring-cyan-50"
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-sm text-slate-200">{zone.label}</p>
+                <p className="text-sm text-slate-600">{zone.label}</p>
                 <h3 className="text-xl font-bold">{zone.key}</h3>
               </div>
-              <Badge className="bg-white/10 text-slate-100 ring-white/10">{zone.offset}</Badge>
+              <Badge className="bg-cyan-500/10 text-cyan-700 ring-cyan-500/15">{zone.offset}</Badge>
             </div>
-            <p className="mt-6 text-3xl font-bold tracking-tight">{formatTime(now, zone.timeZone)}</p>
-            <p className="mt-2 text-sm text-slate-200">{formatDate(now, zone.timeZone)}</p>
+            <p className="mt-6 text-3xl font-bold tracking-tight text-slate-950">
+              {formatTimeInZone(now, zone.timeZone, { second: "2-digit" })}
+            </p>
+            <p className="mt-2 text-sm text-slate-600">{formatDateInZone(now, zone.timeZone)}</p>
           </div>
         ))}
       </div>

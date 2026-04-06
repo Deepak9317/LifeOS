@@ -2,6 +2,9 @@
 
 :root {
   color-scheme: light;
+  --surface: rgba(255, 255, 255, 0.88);
+  --surface-strong: rgba(255, 255, 255, 0.96);
+  --line-soft: rgba(148, 163, 184, 0.18);
 }
 
 * {
@@ -15,7 +18,10 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background: #f8fafc;
+  background:
+    radial-gradient(circle at top left, rgba(125, 211, 252, 0.2), transparent 28%),
+    radial-gradient(circle at top right, rgba(253, 224, 71, 0.16), transparent 24%),
+    linear-gradient(180deg, #f7fbfd, #eff8f6 42%, #f9fbff);
   color: #0f172a;
   font-family: var(--font-sans), sans-serif;
 }
@@ -57,4 +63,47 @@ select {
 
 ::-webkit-scrollbar-track {
   background: transparent;
+}
+
+.card-hover {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 28px 72px -38px rgba(15, 23, 42, 0.24);
+}
+
+.animate-fade-up {
+  animation: fadeUp 500ms ease both;
+}
+
+.animate-soft-pulse {
+  animation: softPulse 5s ease-in-out infinite;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes softPulse {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-2px);
+  }
 }
