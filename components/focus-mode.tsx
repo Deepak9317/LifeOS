@@ -76,12 +76,8 @@ export function FocusMode({
               Focus Mode
             </Badge>
             <div className="space-y-2">
-              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-                Strip the noise away and finish what matters.
-              </h1>
-              <p className="max-w-2xl text-base text-slate-300 sm:text-lg">
-                Focus Mode narrows your world to today&apos;s execution and one note that keeps your intent anchored.
-              </p>
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Focus</h1>
+              <p className="max-w-2xl text-base text-slate-200 sm:text-lg">Today&apos;s tasks and one pinned note.</p>
             </div>
           </div>
           <Link
@@ -95,12 +91,12 @@ export function FocusMode({
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.95fr)]">
         <Card className="space-y-5">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-600">
-              Today&apos;s tasks
-            </p>
-            <h2 className="mt-2 text-3xl font-bold text-slate-950">Only the work scheduled for today</h2>
-          </div>
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-600">
+                Today&apos;s tasks
+              </p>
+              <h2 className="mt-2 text-3xl font-bold text-slate-950">Today</h2>
+            </div>
 
           {todaysTasks.length === 0 ? (
             <EmptyState
@@ -133,9 +129,9 @@ export function FocusMode({
                         {priorityLabel(task.priority)}
                       </span>
                     </div>
-                    <p className="mt-2 text-sm text-slate-500">{formatTaskDate(task.due_date)}</p>
+                    <p className="mt-2 text-sm text-slate-600">{formatTaskDate(task.due_date)}</p>
                     {task.description ? (
-                      <p className="mt-3 text-sm leading-6 text-slate-600">{task.description}</p>
+                      <p className="mt-3 text-sm leading-6 text-slate-700">{task.description}</p>
                     ) : null}
                   </div>
                 </button>
@@ -150,7 +146,7 @@ export function FocusMode({
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-600">
                 Pinned note
               </p>
-              <h2 className="mt-2 text-3xl font-bold text-slate-950">Your guiding context</h2>
+              <h2 className="mt-2 text-3xl font-bold text-slate-950">Pinned note</h2>
             </div>
             <Badge className="bg-amber-400/15 text-amber-700 ring-amber-400/20">
               <Pin className="mr-1 size-3.5" />

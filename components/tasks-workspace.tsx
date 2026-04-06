@@ -89,12 +89,7 @@ export function TasksWorkspace({ tasks: initialTasks }: { tasks: Task[] }) {
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-300">
               Tasks workspace
             </p>
-            <h1 className="mt-3 text-4xl font-bold tracking-tight">
-              Move from list overload to next action clarity.
-            </h1>
-            <p className="mt-3 max-w-2xl text-slate-300">
-              Review everything, filter by intent, and update priorities without leaving the page.
-            </p>
+            <h1 className="mt-3 text-4xl font-bold tracking-tight">Tasks</h1>
           </div>
           <Card className="border-white/10 bg-white/10 text-white">
             <p className="text-sm text-slate-300">Today</p>
@@ -115,7 +110,7 @@ export function TasksWorkspace({ tasks: initialTasks }: { tasks: Task[] }) {
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-600">
                   Filters
                 </p>
-                <h2 className="mt-2 text-2xl font-bold text-slate-950">Shape the board around the moment</h2>
+                <h2 className="mt-2 text-2xl font-bold text-slate-950">Filter tasks</h2>
               </div>
               <div className="flex flex-wrap gap-2">
                 {(["today", "pending", "completed"] as FilterKey[]).map((filter) => (
@@ -181,9 +176,9 @@ export function TasksWorkspace({ tasks: initialTasks }: { tasks: Task[] }) {
                             {priorityLabel(task.priority)}
                           </span>
                         </div>
-                        <p className="mt-2 text-sm text-slate-500">{formatTaskDate(task.due_date)}</p>
+                        <p className="mt-2 text-sm text-slate-600">{formatTaskDate(task.due_date)}</p>
                         {task.description ? (
-                          <p className="mt-2 line-clamp-2 text-sm text-slate-600">{task.description}</p>
+                          <p className="mt-2 line-clamp-2 text-sm text-slate-700">{task.description}</p>
                         ) : null}
                       </button>
                     </div>

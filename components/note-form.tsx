@@ -112,7 +112,7 @@ export function NoteForm({
             {isEditing ? "Edit note" : "Quick add note"}
           </p>
           <h3 className="mt-2 text-2xl font-bold text-slate-950">
-            {isEditing ? "Refine your thinking" : "Write it down before it slips away"}
+            {isEditing ? "Update note" : "Add a note"}
           </h3>
         </div>
         {pinned ? (
@@ -125,7 +125,7 @@ export function NoteForm({
 
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-700" htmlFor="note-title">
+          <label className="text-sm font-medium text-slate-800" htmlFor="note-title">
             Title
           </label>
           <Input
@@ -137,7 +137,7 @@ export function NoteForm({
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-700" htmlFor="note-content">
+          <label className="text-sm font-medium text-slate-800" htmlFor="note-content">
             Content
           </label>
           <Textarea
@@ -150,7 +150,7 @@ export function NoteForm({
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-700" htmlFor="note-tags">
+          <label className="text-sm font-medium text-slate-800" htmlFor="note-tags">
             Tags
           </label>
           <Input
@@ -161,7 +161,7 @@ export function NoteForm({
           />
         </div>
 
-        <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+        <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800">
           <input
             checked={pinned}
             className="size-4 rounded border-slate-300 text-teal-500 focus:ring-teal-500"

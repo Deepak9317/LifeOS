@@ -7,7 +7,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 import { Logo } from "@/components/logo";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -71,36 +70,20 @@ export function AuthPanel() {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_460px] lg:items-center">
-      <div className="space-y-8">
-        <Badge className="bg-slate-950 text-white ring-slate-950/10">Vercel-ready SaaS workspace</Badge>
-        <div className="space-y-4">
+      <div className="space-y-5">
+        <Logo />
+        <div className="space-y-3">
           <h1 className="max-w-2xl text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl">
-            One secure workspace for planning, thinking, and execution.
+            Plan, capture, and focus in one place.
           </h1>
-          <p className="max-w-2xl text-lg text-slate-600">
-            LifeOS combines tasks, notes, focus mode, and global time awareness with Supabase auth,
-            row-level security, and a deployment setup built for real users.
+          <p className="max-w-xl text-lg text-slate-700">
+            Sign in to manage tasks, notes, and your daily focus without the clutter.
           </p>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Card className="bg-slate-950 text-white">
-            <p className="text-sm text-slate-300">Secure auth</p>
-            <p className="mt-3 text-2xl font-bold">Supabase</p>
-          </Card>
-          <Card className="bg-white">
-            <p className="text-sm text-slate-500">Protected routes</p>
-            <p className="mt-3 text-2xl font-bold text-slate-950">Middleware</p>
-          </Card>
-          <Card className="bg-white">
-            <p className="text-sm text-slate-500">CRUD + RLS</p>
-            <p className="mt-3 text-2xl font-bold text-slate-950">Production ready</p>
-          </Card>
         </div>
       </div>
 
       <Card className="border-white/80 bg-white/95 p-7 sm:p-8">
         <div className="space-y-6">
-          <Logo />
           <div className="inline-flex rounded-full bg-slate-100 p-1">
             <button
               className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
@@ -124,7 +107,7 @@ export function AuthPanel() {
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="email">
+              <label className="text-sm font-medium text-slate-800" htmlFor="email">
                 Email
               </label>
               <div className="relative">
@@ -141,7 +124,7 @@ export function AuthPanel() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="password">
+              <label className="text-sm font-medium text-slate-800" htmlFor="password">
                 Password
               </label>
               <div className="relative">

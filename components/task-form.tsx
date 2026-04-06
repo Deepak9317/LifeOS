@@ -118,10 +118,10 @@ export function TaskForm({
             {isEditing ? "Edit task" : "Quick add task"}
           </p>
           <h3 className="mt-2 text-2xl font-bold text-slate-950">
-            {isEditing ? "Keep momentum on the details" : "Capture work the moment it matters"}
+            {isEditing ? "Update task" : "Add a task"}
           </h3>
           {isEditing && initialTask?.due_date ? (
-            <p className="mt-2 text-sm text-slate-500">{formatTaskDate(initialTask.due_date)}</p>
+            <p className="mt-2 text-sm text-slate-600">{formatTaskDate(initialTask.due_date)}</p>
           ) : null}
         </div>
         <span
@@ -136,7 +136,7 @@ export function TaskForm({
 
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-700" htmlFor="task-title">
+          <label className="text-sm font-medium text-slate-800" htmlFor="task-title">
             Title
           </label>
           <Input
@@ -149,7 +149,7 @@ export function TaskForm({
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-700" htmlFor="task-description">
+          <label className="text-sm font-medium text-slate-800" htmlFor="task-description">
             Description
           </label>
           <Textarea
@@ -163,7 +163,7 @@ export function TaskForm({
 
         <div className={cn("grid gap-4", compact ? "" : "sm:grid-cols-2")}>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700" htmlFor="task-priority">
+            <label className="text-sm font-medium text-slate-800" htmlFor="task-priority">
               Priority
             </label>
             <Select
@@ -178,7 +178,7 @@ export function TaskForm({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700" htmlFor="task-due-date">
+            <label className="text-sm font-medium text-slate-800" htmlFor="task-due-date">
               Due date
             </label>
             <Input
@@ -190,7 +190,7 @@ export function TaskForm({
           </div>
         </div>
 
-        <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+        <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800">
           <input
             checked={completed}
             className="size-4 rounded border-slate-300 text-teal-500 focus:ring-teal-500"

@@ -25,7 +25,7 @@ export function EmptyState({
       </div>
       <div className="space-y-1">
         <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
-        <p className="max-w-sm text-sm text-slate-500">{description}</p>
+        <p className="max-w-sm text-sm text-slate-600">{description}</p>
       </div>
       {actionLabel && onAction ? (
         <Button onClick={onAction} size="sm">

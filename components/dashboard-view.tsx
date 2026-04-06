@@ -9,7 +9,6 @@ import { toast } from "sonner";
 import { NoteForm } from "@/components/note-form";
 import { TaskForm } from "@/components/task-form";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { WorldClock } from "@/components/world-clock";
@@ -88,15 +87,12 @@ export function DashboardView({ tasks: initialTasks, notes: initialNotes }: Dash
           <div className="space-y-5">
             <Badge className="bg-white/10 text-white ring-white/10">
               <Sparkles className="mr-1 size-3.5" />
-              Personal productivity dashboard
+              LifeOS
             </Badge>
             <div className="space-y-3">
-              <h1 className="max-w-2xl text-4xl font-bold tracking-tight sm:text-5xl">
-                Run the day from one calm, high-signal workspace.
-              </h1>
-              <p className="max-w-2xl text-base text-slate-300 sm:text-lg">
-                LifeOS keeps tasks, notes, focus time, and global context in one place so your
-                next move is always obvious.
+              <h1 className="max-w-2xl text-4xl font-bold tracking-tight sm:text-5xl">Today at a glance.</h1>
+              <p className="max-w-2xl text-base text-slate-200 sm:text-lg">
+                Tasks, notes, and timezones without the extra noise.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -120,22 +116,18 @@ export function DashboardView({ tasks: initialTasks, notes: initialNotes }: Dash
             <Card className="border-white/10 bg-white/10 text-white">
               <p className="text-sm text-slate-300">Due today</p>
               <p className="mt-4 text-4xl font-bold">{summary.today}</p>
-              <p className="mt-2 text-sm text-slate-300">Tasks that want your attention now.</p>
             </Card>
             <Card className="border-white/10 bg-white/10 text-white">
               <p className="text-sm text-slate-300">Completed</p>
               <p className="mt-4 text-4xl font-bold">{summary.completed}</p>
-              <p className="mt-2 text-sm text-slate-300">Closed loops and finished work.</p>
             </Card>
             <Card className="border-white/10 bg-white/10 text-white">
               <p className="text-sm text-slate-300">Open tasks</p>
               <p className="mt-4 text-4xl font-bold">{summary.pending}</p>
-              <p className="mt-2 text-sm text-slate-300">What is still in motion.</p>
             </Card>
             <Card className="border-white/10 bg-white/10 text-white">
               <p className="text-sm text-slate-300">Notes saved</p>
               <p className="mt-4 text-4xl font-bold">{notes.length}</p>
-              <p className="mt-2 text-sm text-slate-300">Fresh context whenever you need it.</p>
             </Card>
           </div>
         </div>
@@ -148,7 +140,7 @@ export function DashboardView({ tasks: initialTasks, notes: initialNotes }: Dash
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-600">
                 Today&apos;s tasks
               </p>
-              <h2 className="mt-2 text-2xl font-bold text-slate-950">The work that matters today</h2>
+              <h2 className="mt-2 text-2xl font-bold text-slate-950">Today&apos;s tasks</h2>
             </div>
             <Link
               className="inline-flex h-9 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
@@ -194,9 +186,9 @@ export function DashboardView({ tasks: initialTasks, notes: initialNotes }: Dash
                         {priorityLabel(task.priority)}
                       </span>
                     </div>
-                    <p className="mt-2 text-sm text-slate-500">{formatTaskDate(task.due_date)}</p>
+                    <p className="mt-2 text-sm text-slate-600">{formatTaskDate(task.due_date)}</p>
                     {task.description ? (
-                      <p className="mt-2 line-clamp-2 text-sm text-slate-600">{task.description}</p>
+                      <p className="mt-2 line-clamp-2 text-sm text-slate-700">{task.description}</p>
                     ) : null}
                   </div>
                 </button>
@@ -220,7 +212,7 @@ export function DashboardView({ tasks: initialTasks, notes: initialNotes }: Dash
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-600">
                 Recent notes
               </p>
-              <h2 className="mt-2 text-2xl font-bold text-slate-950">Context you can revisit fast</h2>
+              <h2 className="mt-2 text-2xl font-bold text-slate-950">Recent notes</h2>
             </div>
             <Link
               className="inline-flex h-9 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
@@ -249,13 +241,13 @@ export function DashboardView({ tasks: initialTasks, notes: initialNotes }: Dash
                       <h3 className="text-lg font-semibold text-slate-900">
                         {note.title || "Untitled note"}
                       </h3>
-                      <p className="mt-1 text-sm text-slate-500">{formatFullDate(note.created_at)}</p>
+                      <p className="mt-1 text-sm text-slate-600">{formatFullDate(note.created_at)}</p>
                     </div>
                     {isPinnedNote(note) ? (
                       <Badge className="bg-amber-400/15 text-amber-700 ring-amber-400/20">Pinned</Badge>
                     ) : null}
                   </div>
-                  <p className="mt-4 line-clamp-4 text-sm text-slate-600">
+                  <p className="mt-4 line-clamp-4 text-sm text-slate-700">
                     {note.content || "No content yet."}
                   </p>
                   {(note.tags ?? []).length > 0 ? (
@@ -280,7 +272,7 @@ export function DashboardView({ tasks: initialTasks, notes: initialNotes }: Dash
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-600">
             Focus preview
           </p>
-          <h2 className="text-2xl font-bold text-slate-950">One pinned note keeps your intent visible</h2>
+          <h2 className="text-2xl font-bold text-slate-950">Focus preview</h2>
           {pinnedNote ? (
             <div className="rounded-[1.75rem] border border-slate-200 bg-slate-950 p-6 text-white">
               <div className="flex items-center justify-between gap-3">
@@ -292,7 +284,7 @@ export function DashboardView({ tasks: initialTasks, notes: initialNotes }: Dash
                   {isPinnedNote(pinnedNote) ? "Focus ready" : "Latest note"}
                 </Badge>
               </div>
-              <p className="mt-5 whitespace-pre-wrap text-sm leading-6 text-slate-200">
+              <p className="mt-5 whitespace-pre-wrap text-sm leading-6 text-slate-100">
                 {pinnedNote.content || "Add details inside Notes to make this a richer focus brief."}
               </p>
               <Link

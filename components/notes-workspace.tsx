@@ -58,13 +58,7 @@ export function NotesWorkspace({ notes: initialNotes }: { notes: Note[] }) {
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-300">
               Notes workspace
             </p>
-            <h1 className="mt-3 text-4xl font-bold tracking-tight">
-              Capture raw thinking, then turn it into sharp context.
-            </h1>
-            <p className="mt-3 max-w-2xl text-slate-300">
-              Search everything fast, keep one note pinned for focus, and refine ideas without
-              losing the thread.
-            </p>
+            <h1 className="mt-3 text-4xl font-bold tracking-tight">Notes</h1>
           </div>
           <Card className="border-white/10 bg-white/10 text-white">
             <p className="text-sm text-slate-300">Total notes</p>
@@ -82,7 +76,7 @@ export function NotesWorkspace({ notes: initialNotes }: { notes: Note[] }) {
                 <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-600">
                   Search and browse
                 </p>
-                <h2 className="mt-2 text-2xl font-bold text-slate-950">Find the note you need instantly</h2>
+                <h2 className="mt-2 text-2xl font-bold text-slate-950">Find notes fast</h2>
               </div>
               <Button onClick={() => setSelectedNoteId(null)} size="sm">
                 <SquarePen className="size-4" />
@@ -132,8 +126,8 @@ export function NotesWorkspace({ notes: initialNotes }: { notes: Note[] }) {
                             </Badge>
                           ) : null}
                         </div>
-                        <p className="mt-2 text-sm text-slate-500">{formatFullDate(note.created_at)}</p>
-                        <p className="mt-3 line-clamp-3 text-sm text-slate-600">
+                        <p className="mt-2 text-sm text-slate-600">{formatFullDate(note.created_at)}</p>
+                        <p className="mt-3 line-clamp-3 text-sm text-slate-700">
                           {note.content || "No content yet."}
                         </p>
                         {(note.tags ?? []).length > 0 ? (

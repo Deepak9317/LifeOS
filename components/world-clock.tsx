@@ -76,7 +76,7 @@ export function WorldClock({ className }: { className?: string }) {
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-600">
             World clock
           </p>
-          <h2 className="mt-2 text-2xl font-bold text-slate-950">Stay in sync across regions</h2>
+          <h2 className="mt-2 text-2xl font-bold text-slate-950">Keep key timezones close</h2>
         </div>
         <Badge className="bg-slate-950 text-white ring-slate-950/10">
           <Clock3 className="mr-1 size-3.5" />
@@ -113,13 +113,13 @@ export function WorldClock({ className }: { className?: string }) {
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-sm text-slate-300">{zone.label}</p>
+                <p className="text-sm text-slate-200">{zone.label}</p>
                 <h3 className="text-xl font-bold">{zone.key}</h3>
               </div>
               <Badge className="bg-white/10 text-slate-100 ring-white/10">{zone.offset}</Badge>
             </div>
             <p className="mt-6 text-3xl font-bold tracking-tight">{formatTime(now, zone.timeZone)}</p>
-            <p className="mt-2 text-sm text-slate-300">{formatDate(now, zone.timeZone)}</p>
+            <p className="mt-2 text-sm text-slate-200">{formatDate(now, zone.timeZone)}</p>
           </div>
         ))}
       </div>
