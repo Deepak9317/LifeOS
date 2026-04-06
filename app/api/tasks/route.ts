@@ -1,0 +1,92 @@
+import { NextResponse } from "next/server";
+
+import { ApiAuthError, requireApiUser } from "@/lib/auth";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { taskSchema } from "@/lib/validation";
+import type { TaskInsert } from "@/types";
+
+function mapTaskPayload(input: {
+  title: string;
+  description?: string | null;
+  dueDate?: string | null;
+  priority?: "low" | "medium" | "high";
+  completed?: boolean;
+}) {
+  const payload: Omit<TaskInsert, "user_id"> = {
+    title: input.title,
+    description: input.description?.trim() || null,
+    due_date: input.dueDate ? new Date(input.dueDate).toISOString() : null,
+    priority: input.priority ?? "medium",
+    completed: input.completed ?? false
+  };
+
+  return payload;
+}
+
+export async function GET() {
+  try {
+    await requireApiUser();
+    const supabase = await createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("tasks")
+      .select("*")
+      .order("completed", { ascending: true })
+      .order("due_date", { ascending: true, nullsFirst: false })
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return NextResponse.json({ tasks: data ?? [] });
+  } catch (error) {
+    if (error instanceof ApiAuthError) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Unable to fetch tasks." },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const user = await requireApiUser();
+    const body = (await request.json()) as unknown;
+    const parsed = taskSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "Invalid task payload." },
+        { status: 400 }
+      );
+    }
+
+    const supabase = await createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("tasks")
+      .insert({
+        user_id: user.id,
+        ...mapTaskPayload(parsed.data)
+      })
+      .select("*")
+      .single();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return NextResponse.json({ task: data }, { status: 201 });
+  } catch (error) {
+    if (error instanceof ApiAuthError) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Unable to create task." },
+      { status: 500 }
+    );
+  }
+}
