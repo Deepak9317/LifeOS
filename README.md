@@ -43,6 +43,7 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_your_key
 ```
 
 4. Run the SQL in [supabase/setup.sql](/C:/Users/Asus/Desktop/LifeOS/supabase/setup.sql) inside the Supabase SQL editor.
+   The script is safe to rerun and repairs partially-created tables by adding missing LifeOS columns, defaults, indexes, and RLS policies.
 
 5. In Supabase Auth:
 

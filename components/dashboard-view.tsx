@@ -7,6 +7,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 
 import { NoteForm } from "@/components/note-form";
+import { SetupNotice } from "@/components/setup-notice";
 import { TaskForm } from "@/components/task-form";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -24,14 +25,19 @@ import {
   sortTasks,
   summarizeTaskState
 } from "@/lib/utils";
-import type { Note, Task } from "@/types";
+import type { Note, SetupIssue, Task } from "@/types";
 
 type DashboardViewProps = {
   tasks: Task[];
   notes: Note[];
+  setupIssue?: SetupIssue | null;
 };
 
-export function DashboardView({ tasks: initialTasks, notes: initialNotes }: DashboardViewProps) {
+export function DashboardView({
+  tasks: initialTasks,
+  notes: initialNotes,
+  setupIssue = null
+}: DashboardViewProps) {
   const [tasks, setTasks] = useState<Task[]>(sortTasks(initialTasks));
   const [notes, setNotes] = useState<Note[]>(sortNotes(initialNotes));
   const [togglingTaskId, setTogglingTaskId] = useState<string | null>(null);
@@ -83,7 +89,7 @@ export function DashboardView({ tasks: initialTasks, notes: initialNotes }: Dash
   return (
     <div className="space-y-8 p-1">
       <section className="overflow-hidden rounded-[2rem] bg-slate-950 px-6 py-8 text-white shadow-[0_30px_100px_-40px_rgba(15,23,42,0.85)] sm:px-8">
-        <div className="grid gap-8 xl:grid-cols-[minmax(0,1.2fr)_420px]">
+        <div className={`grid gap-8 ${setupIssue ? "" : "xl:grid-cols-[minmax(0,1.2fr)_420px]"}`}>
           <div className="space-y-5">
             <Badge className="bg-white/10 text-white ring-white/10">
               <Sparkles className="mr-1 size-3.5" />
@@ -112,27 +118,33 @@ export function DashboardView({ tasks: initialTasks, notes: initialNotes }: Dash
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Card className="border-white/10 bg-white/10 text-white">
-              <p className="text-sm text-slate-300">Due today</p>
-              <p className="mt-4 text-4xl font-bold">{summary.today}</p>
-            </Card>
-            <Card className="border-white/10 bg-white/10 text-white">
-              <p className="text-sm text-slate-300">Completed</p>
-              <p className="mt-4 text-4xl font-bold">{summary.completed}</p>
-            </Card>
-            <Card className="border-white/10 bg-white/10 text-white">
-              <p className="text-sm text-slate-300">Open tasks</p>
-              <p className="mt-4 text-4xl font-bold">{summary.pending}</p>
-            </Card>
-            <Card className="border-white/10 bg-white/10 text-white">
-              <p className="text-sm text-slate-300">Notes saved</p>
-              <p className="mt-4 text-4xl font-bold">{notes.length}</p>
-            </Card>
-          </div>
+          {setupIssue ? null : (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Card className="border-white/10 bg-white/10 text-white">
+                <p className="text-sm text-slate-200">Due today</p>
+                <p className="mt-4 text-4xl font-bold">{summary.today}</p>
+              </Card>
+              <Card className="border-white/10 bg-white/10 text-white">
+                <p className="text-sm text-slate-200">Completed</p>
+                <p className="mt-4 text-4xl font-bold">{summary.completed}</p>
+              </Card>
+              <Card className="border-white/10 bg-white/10 text-white">
+                <p className="text-sm text-slate-200">Open tasks</p>
+                <p className="mt-4 text-4xl font-bold">{summary.pending}</p>
+              </Card>
+              <Card className="border-white/10 bg-white/10 text-white">
+                <p className="text-sm text-slate-200">Notes saved</p>
+                <p className="mt-4 text-4xl font-bold">{notes.length}</p>
+              </Card>
+            </div>
+          )}
         </div>
       </section>
 
+      {setupIssue ? <SetupNotice issue={setupIssue} /> : null}
+
+      {setupIssue ? null : (
+        <>
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.3fr)_minmax(340px,0.95fr)]">
         <Card className="space-y-6">
           <div className="flex items-center justify-between gap-4">
@@ -304,6 +316,8 @@ export function DashboardView({ tasks: initialTasks, notes: initialNotes }: Dash
           )}
         </Card>
       </div>
+        </>
+      )}
     </div>
   );
 }

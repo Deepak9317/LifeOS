@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { ApiAuthError, requireApiUser } from "@/lib/auth";
+import { getSupabaseSetupResponseMessage } from "@/lib/supabase/errors";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { taskUpdateSchema } from "@/lib/validation";
 import type { TaskUpdate } from "@/types";
@@ -73,6 +74,12 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const setupMessage = getSupabaseSetupResponseMessage(error instanceof Error ? error.message : null);
+
+    if (setupMessage) {
+      return NextResponse.json({ error: setupMessage }, { status: 503 });
+    }
+
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unable to update task." },
       { status: 500 }
@@ -102,6 +109,12 @@ export async function DELETE(
   } catch (error) {
     if (error instanceof ApiAuthError) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const setupMessage = getSupabaseSetupResponseMessage(error instanceof Error ? error.message : null);
+
+    if (setupMessage) {
+      return NextResponse.json({ error: setupMessage }, { status: 503 });
     }
 
     return NextResponse.json(

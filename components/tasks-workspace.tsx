@@ -6,6 +6,7 @@ import { CheckCircle2, ClipboardList, Plus, SlidersHorizontal } from "lucide-rea
 import { toast } from "sonner";
 
 import { TaskForm } from "@/components/task-form";
+import { SetupNotice } from "@/components/setup-notice";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -18,11 +19,17 @@ import {
   sortTasks,
   summarizeTaskState
 } from "@/lib/utils";
-import type { Task } from "@/types";
+import type { SetupIssue, Task } from "@/types";
 
 type FilterKey = "today" | "pending" | "completed";
 
-export function TasksWorkspace({ tasks: initialTasks }: { tasks: Task[] }) {
+export function TasksWorkspace({
+  tasks: initialTasks,
+  setupIssue = null
+}: {
+  tasks: Task[];
+  setupIssue?: SetupIssue | null;
+}) {
   const [tasks, setTasks] = useState<Task[]>(sortTasks(initialTasks));
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(initialTasks[0]?.id ?? null);
   const [activeFilter, setActiveFilter] = useState<FilterKey>("today");
@@ -92,16 +99,19 @@ export function TasksWorkspace({ tasks: initialTasks }: { tasks: Task[] }) {
             <h1 className="mt-3 text-4xl font-bold tracking-tight">Tasks</h1>
           </div>
           <Card className="border-white/10 bg-white/10 text-white">
-            <p className="text-sm text-slate-300">Today</p>
+            <p className="text-sm text-slate-200">Today</p>
             <p className="mt-4 text-4xl font-bold">{summary.today}</p>
           </Card>
           <Card className="border-white/10 bg-white/10 text-white">
-            <p className="text-sm text-slate-300">Pending</p>
+            <p className="text-sm text-slate-200">Pending</p>
             <p className="mt-4 text-4xl font-bold">{summary.pending}</p>
           </Card>
         </div>
       </section>
 
+      {setupIssue ? <SetupNotice issue={setupIssue} /> : null}
+
+      {setupIssue ? null : (
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(340px,0.9fr)]">
         <div className="space-y-6">
           <Card className="space-y-5">
@@ -198,6 +208,7 @@ export function TasksWorkspace({ tasks: initialTasks }: { tasks: Task[] }) {
           />
         </div>
       </div>
+      )}
     </div>
   );
 }

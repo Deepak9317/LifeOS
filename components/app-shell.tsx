@@ -74,7 +74,7 @@ export function AppShell({
                       "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition",
                       active
                         ? "bg-slate-950 text-white shadow-lg shadow-slate-950/10"
-                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
+                        : "text-slate-700 hover:bg-slate-100 hover:text-slate-950"
                     )}
                     href={item.href}
                   >
@@ -88,7 +88,7 @@ export function AppShell({
 
           <div className="space-y-4 rounded-[1.75rem] border border-slate-200 bg-slate-50 px-4 py-5">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Signed in</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">Signed in</p>
               <p className="mt-2 text-sm font-semibold text-slate-900">{userEmail}</p>
             </div>
             <Button className="w-full" disabled={isPending} onClick={logout} variant="secondary">
@@ -120,7 +120,7 @@ export function AppShell({
                         "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition",
                         active
                           ? "bg-slate-950 text-white"
-                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
+                          : "text-slate-700 hover:bg-slate-100 hover:text-slate-950"
                       )}
                       href={item.href}
                       onClick={() => setMobileOpen(false)}

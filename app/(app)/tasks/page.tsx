@@ -1,8 +1,8 @@
 import { TasksWorkspace } from "@/components/tasks-workspace";
-import { getUserTasks } from "@/lib/data";
+import { getUserTasksState } from "@/lib/data";
 
 export default async function TasksPage() {
-  const tasks = await getUserTasks();
+  const { tasks, setupIssue } = await getUserTasksState();
 
-  return <TasksWorkspace tasks={tasks} />;
+  return <TasksWorkspace setupIssue={setupIssue} tasks={tasks} />;
 }

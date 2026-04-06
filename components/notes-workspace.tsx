@@ -5,15 +5,22 @@ import { useDeferredValue, useEffect, useState } from "react";
 import { NotebookPen, Pin, Search, SquarePen } from "lucide-react";
 
 import { NoteForm } from "@/components/note-form";
+import { SetupNotice } from "@/components/setup-notice";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { formatFullDate, isPinnedNote, sortNotes } from "@/lib/utils";
-import type { Note } from "@/types";
+import type { Note, SetupIssue } from "@/types";
 
-export function NotesWorkspace({ notes: initialNotes }: { notes: Note[] }) {
+export function NotesWorkspace({
+  notes: initialNotes,
+  setupIssue = null
+}: {
+  notes: Note[];
+  setupIssue?: SetupIssue | null;
+}) {
   const [notes, setNotes] = useState<Note[]>(sortNotes(initialNotes));
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(initialNotes[0]?.id ?? null);
   const [query, setQuery] = useState("");
@@ -61,13 +68,16 @@ export function NotesWorkspace({ notes: initialNotes }: { notes: Note[] }) {
             <h1 className="mt-3 text-4xl font-bold tracking-tight">Notes</h1>
           </div>
           <Card className="border-white/10 bg-white/10 text-white">
-            <p className="text-sm text-slate-300">Total notes</p>
+            <p className="text-sm text-slate-200">Total notes</p>
             <p className="mt-4 text-4xl font-bold">{notes.length}</p>
-            <p className="mt-2 text-sm text-slate-300">Pinned notes surface first inside Focus Mode.</p>
+            <p className="mt-2 text-sm text-slate-200">Pinned notes surface first inside Focus Mode.</p>
           </Card>
         </div>
       </section>
 
+      {setupIssue ? <SetupNotice issue={setupIssue} /> : null}
+
+      {setupIssue ? null : (
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.95fr)]">
         <div className="space-y-6">
           <Card className="space-y-5">
@@ -160,6 +170,7 @@ export function NotesWorkspace({ notes: initialNotes }: { notes: Note[] }) {
           />
         </div>
       </div>
+      )}
     </div>
   );
 }

@@ -1,8 +1,8 @@
 import { NotesWorkspace } from "@/components/notes-workspace";
-import { getUserNotes } from "@/lib/data";
+import { getUserNotesState } from "@/lib/data";
 
 export default async function NotesPage() {
-  const notes = await getUserNotes();
+  const { notes, setupIssue } = await getUserNotesState();
 
-  return <NotesWorkspace notes={notes} />;
+  return <NotesWorkspace notes={notes} setupIssue={setupIssue} />;
 }

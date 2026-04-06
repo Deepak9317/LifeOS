@@ -87,7 +87,7 @@ export function AuthPanel() {
           <div className="inline-flex rounded-full bg-slate-100 p-1">
             <button
               className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                mode === "signin" ? "bg-white text-slate-950 shadow-sm" : "text-slate-500"
+                mode === "signin" ? "bg-white text-slate-950 shadow-sm" : "text-slate-600"
               }`}
               onClick={() => setMode("signin")}
               type="button"
@@ -96,7 +96,7 @@ export function AuthPanel() {
             </button>
             <button
               className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                mode === "signup" ? "bg-white text-slate-950 shadow-sm" : "text-slate-500"
+                mode === "signup" ? "bg-white text-slate-950 shadow-sm" : "text-slate-600"
               }`}
               onClick={() => setMode("signup")}
               type="button"

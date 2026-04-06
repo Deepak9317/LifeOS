@@ -2,7 +2,7 @@ import { DashboardView } from "@/components/dashboard-view";
 import { getWorkspaceSnapshot } from "@/lib/data";
 
 export default async function DashboardPage() {
-  const { tasks, notes } = await getWorkspaceSnapshot();
+  const { tasks, notes, setupIssue } = await getWorkspaceSnapshot();
 
-  return <DashboardView notes={notes} tasks={tasks} />;
+  return <DashboardView notes={notes} setupIssue={setupIssue} tasks={tasks} />;
 }

@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { SetupNotice } from "@/components/setup-notice";
 import { PRIORITY_STYLES } from "@/lib/constants";
 import {
   formatTaskDate,
@@ -19,14 +20,16 @@ import {
   sortNotes,
   sortTasks
 } from "@/lib/utils";
-import type { Note, Task } from "@/types";
+import type { Note, SetupIssue, Task } from "@/types";
 
 export function FocusMode({
   tasks: initialTasks,
-  notes: initialNotes
+  notes: initialNotes,
+  setupIssue = null
 }: {
   tasks: Task[];
   notes: Note[];
+  setupIssue?: SetupIssue | null;
 }) {
   const [tasks, setTasks] = useState<Task[]>(sortTasks(initialTasks));
   const [notes, setNotes] = useState<Note[]>(sortNotes(initialNotes));
@@ -89,6 +92,9 @@ export function FocusMode({
         </div>
       </section>
 
+      {setupIssue ? <SetupNotice issue={setupIssue} /> : null}
+
+      {setupIssue ? null : (
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.95fr)]">
         <Card className="space-y-5">
             <div>
@@ -180,6 +186,7 @@ export function FocusMode({
           )}
         </Card>
       </div>
+      )}
     </div>
   );
 }

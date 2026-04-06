@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { ApiAuthError, requireApiUser } from "@/lib/auth";
+import { getSupabaseSetupResponseMessage } from "@/lib/supabase/errors";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { noteSchema } from "@/lib/validation";
 import type { NoteInsert } from "@/types";
@@ -36,6 +37,12 @@ export async function GET() {
   } catch (error) {
     if (error instanceof ApiAuthError) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const setupMessage = getSupabaseSetupResponseMessage(error instanceof Error ? error.message : null);
+
+    if (setupMessage) {
+      return NextResponse.json({ error: setupMessage }, { status: 503 });
     }
 
     return NextResponse.json(
@@ -76,6 +83,12 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof ApiAuthError) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const setupMessage = getSupabaseSetupResponseMessage(error instanceof Error ? error.message : null);
+
+    if (setupMessage) {
+      return NextResponse.json({ error: setupMessage }, { status: 503 });
     }
 
     return NextResponse.json(

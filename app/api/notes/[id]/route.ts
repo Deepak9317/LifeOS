@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { ApiAuthError, requireApiUser } from "@/lib/auth";
+import { getSupabaseSetupResponseMessage } from "@/lib/supabase/errors";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { noteUpdateSchema } from "@/lib/validation";
 import type { NoteUpdate } from "@/types";
@@ -63,6 +64,12 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const setupMessage = getSupabaseSetupResponseMessage(error instanceof Error ? error.message : null);
+
+    if (setupMessage) {
+      return NextResponse.json({ error: setupMessage }, { status: 503 });
+    }
+
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unable to update note." },
       { status: 500 }
@@ -92,6 +99,12 @@ export async function DELETE(
   } catch (error) {
     if (error instanceof ApiAuthError) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const setupMessage = getSupabaseSetupResponseMessage(error instanceof Error ? error.message : null);
+
+    if (setupMessage) {
+      return NextResponse.json({ error: setupMessage }, { status: 503 });
     }
 
     return NextResponse.json(
