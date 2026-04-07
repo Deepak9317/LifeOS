@@ -37,3 +37,12 @@ export async function requireApiUser() {
 
   return user;
 }
+
+export async function reauthenticateUser(email: string, password: string) {
+  const supabase = await createSupabaseServerClient();
+
+  return supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+}

@@ -3,9 +3,15 @@ import { NextResponse, type NextRequest } from "next/server";
 import { refreshSession } from "@/lib/supabase/middleware";
 
 const AUTH_ROUTE = "/login";
+const PUBLIC_ROUTES = ["/login", "/signup", "/forgot-password", "/reset-password"];
+const GUEST_ONLY_ROUTES = ["/login", "/signup", "/forgot-password"];
 
 function isPublicRoute(pathname: string) {
-  return pathname === AUTH_ROUTE;
+  return PUBLIC_ROUTES.includes(pathname);
+}
+
+function isGuestOnlyRoute(pathname: string) {
+  return GUEST_ONLY_ROUTES.includes(pathname);
 }
 
 export async function middleware(request: NextRequest) {
@@ -19,7 +25,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (user && isPublicRoute(pathname)) {
+  if (user && isGuestOnlyRoute(pathname)) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/";
     redirectUrl.search = "";

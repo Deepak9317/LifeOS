@@ -20,6 +20,17 @@ export type Note = {
   created_at: string;
 };
 
+export type Profile = {
+  id: string;
+  email: string;
+  full_name: string | null;
+  timezone: string | null;
+  country_code: string | null;
+  avatar_url: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type TaskInsert = {
   id?: string;
   user_id: string;
@@ -44,6 +55,19 @@ export type NoteInsert = {
 
 export type NoteUpdate = Partial<Omit<NoteInsert, "user_id">>;
 
+export type ProfileInsert = {
+  id: string;
+  email: string;
+  full_name?: string | null;
+  timezone?: string | null;
+  country_code?: string | null;
+  avatar_url?: string | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type ProfileUpdate = Partial<Omit<ProfileInsert, "id" | "email" | "created_at">>;
+
 export type Database = {
   public: {
     Tables: {
@@ -57,6 +81,12 @@ export type Database = {
         Row: Note;
         Insert: NoteInsert;
         Update: NoteUpdate;
+        Relationships: [];
+      };
+      profiles: {
+        Row: Profile;
+        Insert: ProfileInsert;
+        Update: ProfileUpdate;
         Relationships: [];
       };
     };

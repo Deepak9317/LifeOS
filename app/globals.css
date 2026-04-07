@@ -26,6 +26,14 @@ body {
   font-family: var(--font-sans), sans-serif;
 }
 
+html.dark body {
+  background:
+    radial-gradient(circle at top left, rgba(20, 184, 166, 0.12), transparent 28%),
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.12), transparent 24%),
+    linear-gradient(180deg, #020617, #0f172a 48%, #111827);
+  color: #e2e8f0;
+}
+
 h1,
 h2,
 h3,
@@ -75,6 +83,10 @@ select {
 .card-hover:hover {
   transform: translateY(-2px);
   box-shadow: 0 28px 72px -38px rgba(15, 23, 42, 0.24);
+}
+
+html.dark .card-hover:hover {
+  box-shadow: 0 28px 72px -38px rgba(2, 6, 23, 0.6);
 }
 
 .animate-fade-up {

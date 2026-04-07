@@ -1,28 +1,17 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useState } from "react";
 
-import {
-  CircleDollarSign,
-  Clock3,
-  Focus,
-  LayoutDashboard,
-  LoaderCircle,
-  LogOut,
-  Menu,
-  NotebookPen,
-  TimerReset,
-  X
-} from "lucide-react";
+import { CircleDollarSign, Clock3, Focus, LayoutDashboard, Menu, NotebookPen, TimerReset, X } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { usePathname } from "next/navigation";
 
 import { Logo } from "@/components/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { UserAvatarMenu } from "@/components/user-avatar-menu";
 import { WorldClockStrip } from "@/components/world-clock-strip";
 import { APP_VERSION } from "@/lib/constants";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 const navigation = [
@@ -36,31 +25,15 @@ const navigation = [
 
 export function AppShell({
   children,
-  userEmail
+  userEmail,
+  profileName
 }: {
   children: React.ReactNode;
   userEmail: string;
+  profileName?: string | null;
 }) {
   const pathname = usePathname();
-  const router = useRouter();
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
-  const [isPending, startTransition] = useTransition();
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  const logout = () => {
-    startTransition(async () => {
-      const { error } = await supabase.auth.signOut();
-
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
-
-      toast.success("You have been signed out.");
-      router.replace("/login");
-      router.refresh();
-    });
-  };
 
   return (
     <div className="min-h-screen">
@@ -92,34 +65,34 @@ export function AppShell({
             </nav>
           </div>
 
-          <div className="space-y-4 rounded-[1.75rem] border border-white/80 bg-white/75 px-4 py-5">
+          <div className="space-y-4 rounded-[1.75rem] border border-white/80 bg-white/75 px-4 py-5 dark:border-slate-800 dark:bg-slate-950/80">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">Signed in</p>
-              <p className="mt-2 text-sm font-semibold text-slate-900">{userEmail}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">Signed in</p>
+              <p className="mt-2 text-sm font-semibold text-slate-900 dark:text-slate-100">{userEmail}</p>
             </div>
-            <div className="rounded-2xl bg-slate-950/5 px-3 py-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+            <div className="rounded-2xl bg-slate-950/5 px-3 py-2 dark:bg-slate-900">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
                 Version
               </p>
-              <p className="mt-1 text-sm font-semibold text-slate-900">v{APP_VERSION}</p>
+              <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">v{APP_VERSION}</p>
             </div>
-            <Button className="w-full" disabled={isPending} onClick={logout} variant="secondary">
-              {isPending ? <LoaderCircle className="size-4 animate-spin" /> : <LogOut className="size-4" />}
-              Logout
-            </Button>
+            <UserAvatarMenu email={userEmail} name={profileName} />
           </div>
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col gap-4">
-          <div className="flex items-center justify-between rounded-[1.75rem] border border-white/80 bg-white/80 px-4 py-3 shadow-sm backdrop-blur xl:hidden">
+          <div className="flex items-center justify-between rounded-[1.75rem] border border-white/80 bg-white/80 px-4 py-3 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-950/85">
             <Logo compact />
-            <Button onClick={() => setMobileOpen((current) => !current)} size="sm" variant="secondary">
-              {mobileOpen ? <X className="size-4" /> : <Menu className="size-4" />}
-            </Button>
+            <div className="flex items-center gap-2">
+              <ThemeToggle compact />
+              <Button onClick={() => setMobileOpen((current) => !current)} size="sm" variant="secondary">
+                {mobileOpen ? <X className="size-4" /> : <Menu className="size-4" />}
+              </Button>
+            </div>
           </div>
 
           {mobileOpen ? (
-            <div className="rounded-[1.75rem] border border-white/80 bg-white/90 p-4 shadow-sm xl:hidden">
+            <div className="rounded-[1.75rem] border border-white/80 bg-white/90 p-4 shadow-sm xl:hidden dark:border-slate-800 dark:bg-slate-950/95">
               <nav className="space-y-2">
                 {navigation.map((item) => {
                   const Icon = item.icon;
@@ -143,16 +116,15 @@ export function AppShell({
                   );
                 })}
               </nav>
-              <div className="mt-4 rounded-2xl bg-slate-950/5 px-4 py-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+              <div className="mt-4 rounded-2xl bg-slate-950/5 px-4 py-3 dark:bg-slate-900">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
                   Version
                 </p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">v{APP_VERSION}</p>
+                <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">v{APP_VERSION}</p>
               </div>
-              <Button className="mt-4 w-full" disabled={isPending} onClick={logout} variant="secondary">
-                {isPending ? <LoaderCircle className="size-4 animate-spin" /> : <LogOut className="size-4" />}
-                Logout
-              </Button>
+              <div className="mt-4">
+                <UserAvatarMenu email={userEmail} name={profileName} />
+              </div>
             </div>
           ) : null}
 

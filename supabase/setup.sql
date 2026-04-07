@@ -27,6 +27,17 @@ create table if not exists public.notes (
   created_at timestamptz not null default timezone('utc', now())
 );
 
+create table if not exists public.profiles (
+  id uuid primary key references auth.users (id) on delete cascade,
+  email text not null,
+  full_name text,
+  timezone text,
+  country_code text,
+  avatar_url text,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
 alter table public.tasks add column if not exists id uuid default gen_random_uuid();
 alter table public.tasks add column if not exists user_id uuid;
 alter table public.tasks add column if not exists title text;
@@ -42,6 +53,15 @@ alter table public.notes add column if not exists title text;
 alter table public.notes add column if not exists content text;
 alter table public.notes add column if not exists tags text[] default '{}';
 alter table public.notes add column if not exists created_at timestamptz default timezone('utc', now());
+
+alter table public.profiles add column if not exists id uuid;
+alter table public.profiles add column if not exists email text;
+alter table public.profiles add column if not exists full_name text;
+alter table public.profiles add column if not exists timezone text;
+alter table public.profiles add column if not exists country_code text;
+alter table public.profiles add column if not exists avatar_url text;
+alter table public.profiles add column if not exists created_at timestamptz default timezone('utc', now());
+alter table public.profiles add column if not exists updated_at timestamptz default timezone('utc', now());
 
 do $$
 begin
@@ -138,6 +158,8 @@ update public.tasks set priority = 'medium' where priority is null;
 update public.tasks set created_at = timezone('utc', now()) where created_at is null;
 update public.notes set tags = '{}'::text[] where tags is null;
 update public.notes set created_at = timezone('utc', now()) where created_at is null;
+update public.profiles set created_at = timezone('utc', now()) where created_at is null;
+update public.profiles set updated_at = timezone('utc', now()) where updated_at is null;
 
 alter table public.tasks alter column id set default gen_random_uuid();
 alter table public.tasks alter column priority set default 'medium';
@@ -146,6 +168,8 @@ alter table public.tasks alter column created_at set default timezone('utc', now
 alter table public.notes alter column id set default gen_random_uuid();
 alter table public.notes alter column tags set default '{}';
 alter table public.notes alter column created_at set default timezone('utc', now());
+alter table public.profiles alter column created_at set default timezone('utc', now());
+alter table public.profiles alter column updated_at set default timezone('utc', now());
 
 do $$
 begin
@@ -156,6 +180,18 @@ begin
       and contype = 'p'
   ) then
     alter table public.tasks add constraint tasks_pkey primary key (id);
+  end if;
+end $$;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conrelid = 'public.profiles'::regclass
+      and contype = 'p'
+  ) then
+    alter table public.profiles add constraint profiles_pkey primary key (id);
   end if;
 end $$;
 
@@ -207,6 +243,10 @@ alter table public.tasks alter column created_at set not null;
 alter table public.notes alter column user_id set not null;
 alter table public.notes alter column tags set not null;
 alter table public.notes alter column created_at set not null;
+alter table public.profiles alter column id set not null;
+alter table public.profiles alter column email set not null;
+alter table public.profiles alter column created_at set not null;
+alter table public.profiles alter column updated_at set not null;
 
 comment on column public.notes.tags is 'Use the reserved pinned tag to surface a note in Focus Mode.';
 
@@ -215,11 +255,14 @@ create index if not exists tasks_user_completed_idx on public.tasks (user_id, co
 create index if not exists tasks_user_created_idx on public.tasks (user_id, created_at desc);
 create index if not exists notes_user_created_idx on public.notes (user_id, created_at desc);
 create index if not exists notes_tags_gin_idx on public.notes using gin (tags);
+create index if not exists profiles_email_idx on public.profiles (email);
 
 alter table public.tasks enable row level security;
 alter table public.notes enable row level security;
+alter table public.profiles enable row level security;
 alter table public.tasks force row level security;
 alter table public.notes force row level security;
+alter table public.profiles force row level security;
 
 drop policy if exists "Users can view their own tasks" on public.tasks;
 drop policy if exists "Users can insert their own tasks" on public.tasks;
@@ -273,6 +316,73 @@ on public.notes
 for delete
 using (auth.uid() = user_id);
 
+drop policy if exists "Users can view their own profile" on public.profiles;
+drop policy if exists "Users can update their own profile" on public.profiles;
+
+create policy "Users can view their own profile"
+on public.profiles
+for select
+using (auth.uid() = id);
+
+create policy "Users can update their own profile"
+on public.profiles
+for update
+using (auth.uid() = id)
+with check (auth.uid() = id);
+
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.profiles (id, email, full_name, timezone, country_code, avatar_url)
+  values (
+    new.id,
+    new.email,
+    coalesce(new.raw_user_meta_data ->> 'full_name', new.raw_user_meta_data ->> 'name'),
+    new.raw_user_meta_data ->> 'timezone',
+    new.raw_user_meta_data ->> 'country_code',
+    new.raw_user_meta_data ->> 'avatar_url'
+  )
+  on conflict (id) do update
+  set
+    email = excluded.email,
+    full_name = coalesce(excluded.full_name, public.profiles.full_name),
+    timezone = coalesce(excluded.timezone, public.profiles.timezone),
+    country_code = coalesce(excluded.country_code, public.profiles.country_code),
+    avatar_url = coalesce(excluded.avatar_url, public.profiles.avatar_url),
+    updated_at = timezone('utc', now());
+
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+after insert on auth.users
+for each row execute procedure public.handle_new_user();
+
+insert into public.profiles (id, email, full_name, timezone, country_code, avatar_url)
+select
+  users.id,
+  users.email,
+  coalesce(users.raw_user_meta_data ->> 'full_name', users.raw_user_meta_data ->> 'name'),
+  users.raw_user_meta_data ->> 'timezone',
+  users.raw_user_meta_data ->> 'country_code',
+  users.raw_user_meta_data ->> 'avatar_url'
+from auth.users as users
+on conflict (id) do update
+set
+  email = excluded.email,
+  full_name = coalesce(excluded.full_name, public.profiles.full_name),
+  timezone = coalesce(excluded.timezone, public.profiles.timezone),
+  country_code = coalesce(excluded.country_code, public.profiles.country_code),
+  avatar_url = coalesce(excluded.avatar_url, public.profiles.avatar_url),
+  updated_at = timezone('utc', now());
+
 grant usage on schema public to authenticated;
 grant select, insert, update, delete on public.tasks to authenticated;
 grant select, insert, update, delete on public.notes to authenticated;
+grant select, update on public.profiles to authenticated;

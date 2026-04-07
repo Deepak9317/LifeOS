@@ -13,9 +13,9 @@ const variantStyles: Record<NonNullable<ButtonProps["variant"]>, string> = {
   primary:
     "bg-[linear-gradient(135deg,#0f766e,#14b8a6)] text-white shadow-[0_18px_35px_-18px_rgba(20,184,166,0.7)] hover:brightness-105 focus-visible:ring-teal-400",
   secondary:
-    "bg-white/85 text-slate-900 ring-1 ring-slate-200/90 hover:bg-white focus-visible:ring-teal-400",
+    "bg-white/85 text-slate-900 ring-1 ring-slate-200/90 hover:bg-white focus-visible:ring-teal-400 dark:bg-slate-900 dark:text-slate-100 dark:ring-slate-800 dark:hover:bg-slate-800",
   ghost:
-    "bg-transparent text-slate-700 hover:bg-slate-100/85 focus-visible:ring-slate-300",
+    "bg-transparent text-slate-700 hover:bg-slate-100/85 focus-visible:ring-slate-300 dark:text-slate-200 dark:hover:bg-slate-900",
   danger:
     "bg-rose-600 text-white hover:bg-rose-500 focus-visible:ring-rose-300"
 };
