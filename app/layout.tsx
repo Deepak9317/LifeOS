@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Manrope, Space_Grotesk } from "next/font/google";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import { Providers } from "@/components/providers";
 
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html className={`${manrope.variable} ${spaceGrotesk.variable}`} lang="en" suppressHydrationWarning>
       <body>
         <Providers>{children}</Providers>
+        <SpeedInsights />
       </body>
     </html>
   );
