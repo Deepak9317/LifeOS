@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { refreshSession } from "@/lib/supabase/middleware";
 
 const AUTH_ROUTE = "/login";
-const PUBLIC_ROUTES = ["/login", "/signup", "/forgot-password", "/reset-password"];
+const PUBLIC_ROUTES = ["/login", "/signup", "/forgot-password", "/reset-password", "/about", "/privacy", "/terms", "/contact", "/sitemap"];
 const GUEST_ONLY_ROUTES = ["/login", "/signup", "/forgot-password"];
 
 function isPublicRoute(pathname: string) {
