@@ -249,7 +249,7 @@ export function DashboardView({
 
   return (
     <div className="space-y-6 p-1">
-      <section className="animate-fade-up rounded-[2rem] bg-[linear-gradient(135deg,rgba(255,255,255,0.97),rgba(239,248,245,0.94),rgba(240,249,255,0.92))] px-6 py-8 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.22)] dark:border dark:border-gray-800 dark:bg-gray-900 sm:px-8">
+      <section className="animate-fade-up rounded-[2rem] bg-[linear-gradient(135deg,rgba(255,255,255,0.97),rgba(239,248,245,0.94),rgba(240,249,255,0.92))] px-6 py-8 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.22)] dark:border dark:border-gray-800 dark:bg-gray-900 dark:[background-image:none] sm:px-8">
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.3fr)_360px]">
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 rounded-full bg-slate-950/5 px-3 py-1.5 text-sm font-semibold text-slate-700 dark:bg-gray-950 dark:text-gray-300">
@@ -316,7 +316,7 @@ export function DashboardView({
             {stats.map((stat, index) => (
               <Card
                 key={stat.label}
-                className={`card-hover animate-fade-up rounded-[1.75rem] bg-white/90 p-5 shadow-[0_20px_50px_-38px_rgba(15,23,42,0.18)] [animation-delay:${index * 40}ms]`}
+                className={`card-hover animate-fade-up rounded-[1.75rem] bg-white/90 p-5 shadow-[0_20px_50px_-38px_rgba(15,23,42,0.18)] dark:bg-gray-900 [animation-delay:${index * 40}ms]`}
               >
                 <p className="text-sm text-slate-500 dark:text-gray-500">{stat.label}</p>
                 <p className="mt-3 text-3xl font-bold text-slate-950 dark:text-white">{stat.value}</p>
@@ -338,7 +338,7 @@ export function DashboardView({
               return (
                 <Link key={card.title} className="block" href={card.href}>
                   <Card
-                    className={`card-hover animate-fade-up rounded-[1.75rem] bg-white/92 p-5 shadow-[0_20px_50px_-38px_rgba(15,23,42,0.2)] [animation-delay:${index * 40}ms]`}
+                    className={`card-hover animate-fade-up rounded-[1.75rem] bg-white/92 p-5 shadow-[0_20px_50px_-38px_rgba(15,23,42,0.2)] dark:bg-gray-900 [animation-delay:${index * 40}ms]`}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0 space-y-3">
@@ -366,7 +366,7 @@ export function DashboardView({
           </section>
 
           <section className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
-            <Card className="card-hover animate-fade-up rounded-[1.75rem] bg-white/92 p-5 shadow-[0_20px_50px_-38px_rgba(15,23,42,0.18)] [animation-delay:180ms]">
+            <Card className="card-hover animate-fade-up rounded-[1.75rem] bg-white/92 p-5 shadow-[0_20px_50px_-38px_rgba(15,23,42,0.18)] dark:bg-gray-900 [animation-delay:180ms]">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-gray-500">Recent activity</p>
@@ -390,7 +390,7 @@ export function DashboardView({
               </div>
             </Card>
 
-            <Card className="card-hover animate-fade-up rounded-[1.75rem] bg-white/92 p-5 shadow-[0_20px_50px_-38px_rgba(15,23,42,0.18)] [animation-delay:220ms]">
+            <Card className="card-hover animate-fade-up rounded-[1.75rem] bg-white/92 p-5 shadow-[0_20px_50px_-38px_rgba(15,23,42,0.18)] dark:bg-gray-900 [animation-delay:220ms]">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-gray-500">Today at a glance</p>
               <div className="mt-4 space-y-4">
                 <div className="rounded-[1.2rem] bg-slate-50/90 px-4 py-4 dark:bg-gray-950">

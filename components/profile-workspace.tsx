@@ -120,7 +120,7 @@ export function ProfileWorkspace({
 
   return (
     <div className="space-y-6 p-1">
-      <section className="animate-fade-up rounded-[2rem] bg-[linear-gradient(135deg,rgba(255,255,255,0.97),rgba(239,248,245,0.94),rgba(240,249,255,0.92))] px-6 py-8 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.22)] dark:border dark:border-gray-800 dark:bg-gray-900">
+      <section className="animate-fade-up rounded-[2rem] bg-[linear-gradient(135deg,rgba(255,255,255,0.97),rgba(239,248,245,0.94),rgba(240,249,255,0.92))] px-6 py-8 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.22)] dark:border dark:border-gray-800 dark:bg-gray-900 dark:[background-image:none]">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-teal-700 dark:text-gray-500">Profile</p>
         <h1 className="mt-3 text-4xl font-bold tracking-tight text-slate-950 dark:text-white">Account settings</h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-gray-300">

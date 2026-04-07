@@ -35,8 +35,8 @@ export function WorldClockStrip() {
               key={zone.key}
               className={`min-w-[156px] rounded-[1.25rem] px-3 py-2.5 shadow-[0_12px_30px_-26px_rgba(15,23,42,0.2)] transition ${
                 isUserZone
-                  ? "bg-[linear-gradient(135deg,rgba(207,250,254,0.98),rgba(220,252,231,0.96))] scale-[1.01] dark:bg-gray-950"
-                  : "bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(239,248,245,0.92))] dark:bg-gray-950"
+                  ? "bg-[linear-gradient(135deg,rgba(207,250,254,0.98),rgba(220,252,231,0.96))] scale-[1.01] dark:bg-gray-950 dark:[background-image:none]"
+                  : "bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(239,248,245,0.92))] dark:bg-gray-950 dark:[background-image:none]"
               }`}
             >
               <div className="flex items-center justify-between gap-2">

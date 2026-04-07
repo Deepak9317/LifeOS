@@ -90,7 +90,7 @@ export function TasksWorkspace({
 
   return (
     <div className="space-y-8 p-1">
-      <section className="animate-fade-up rounded-[2rem] border border-white/90 bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(236,254,255,0.92)_45%,rgba(240,253,244,0.92))] px-6 py-8 text-slate-950 shadow-[0_24px_70px_-40px_rgba(15,23,42,0.2)] dark:border-gray-800 dark:bg-gray-900 dark:text-white">
+      <section className="animate-fade-up rounded-[2rem] border border-white/90 bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(236,254,255,0.92)_45%,rgba(240,253,244,0.92))] px-6 py-8 text-slate-950 shadow-[0_24px_70px_-40px_rgba(15,23,42,0.2)] dark:border-gray-800 dark:bg-gray-900 dark:text-white dark:[background-image:none]">
         <div className="grid gap-5 lg:grid-cols-4">
           <div className="lg:col-span-2">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-700 dark:text-gray-500">
