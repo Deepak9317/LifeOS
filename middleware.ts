@@ -14,9 +14,17 @@ function isGuestOnlyRoute(pathname: string) {
   return GUEST_ONLY_ROUTES.includes(pathname);
 }
 
+function isApiRoute(pathname: string) {
+  return pathname.startsWith("/api/");
+}
+
 export async function middleware(request: NextRequest) {
   const { user, response } = await refreshSession(request);
   const { pathname } = request.nextUrl;
+
+  if (isApiRoute(pathname)) {
+    return response;
+  }
 
   if (!user && !isPublicRoute(pathname)) {
     const redirectUrl = request.nextUrl.clone();

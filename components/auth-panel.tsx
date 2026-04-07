@@ -34,7 +34,11 @@ async function fetchLocationSnapshot() {
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const response = await fetch("/api/location", { method: "GET" }).catch(() => null);
-  const payload = response && response.ok ? ((await response.json()) as { country_code?: string | null }) : null;
+  const contentType = response?.headers.get("content-type") ?? "";
+  const payload =
+    response && response.ok && contentType.includes("application/json")
+      ? (((await response.json().catch(() => null)) as { country_code?: string | null } | null) ?? null)
+      : null;
 
   return {
     timezone,

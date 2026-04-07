@@ -57,7 +57,11 @@ export function ProfileWorkspace({
   const refreshLocation = async () => {
     const timezoneValue = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const response = await fetch("/api/location");
-    const payload = (await response.json().catch(() => null)) as { country_code?: string | null } | null;
+    const contentType = response.headers.get("content-type") ?? "";
+    const payload =
+      response.ok && contentType.includes("application/json")
+        ? (((await response.json().catch(() => null)) as { country_code?: string | null } | null) ?? null)
+        : null;
 
     setTimezone(timezoneValue);
     setCountryCode(payload?.country_code ?? "");
