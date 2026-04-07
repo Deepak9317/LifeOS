@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import { useEffect, useMemo, useState } from "react";
 
-import { CheckCircle2, ClipboardList, Plus, SlidersHorizontal } from "lucide-react";
+import { CheckCircle2, ClipboardList, Eye, Plus, SlidersHorizontal } from "lucide-react";
 import { toast } from "sonner";
 
-import { TaskForm } from "@/components/task-form";
 import { SetupNotice } from "@/components/setup-notice";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Modal } from "@/components/ui/modal";
 import { PRIORITY_STYLES } from "@/lib/constants";
 import {
   formatTaskDate,
@@ -23,6 +24,19 @@ import type { SetupIssue, Task } from "@/types";
 
 type FilterKey = "today" | "pending" | "completed";
 
+const TaskForm = dynamic(
+  () => import("@/components/task-form").then((module) => module.TaskForm),
+  {
+    loading: () => (
+      <Card className="space-y-4">
+        <div className="h-4 w-28 rounded-full bg-amber-100" />
+        <div className="h-10 w-52 rounded-2xl bg-amber-50" />
+        <div className="h-32 rounded-[1.5rem] bg-stone-50" />
+      </Card>
+    )
+  }
+);
+
 export function TasksWorkspace({
   tasks: initialTasks,
   setupIssue = null
@@ -31,38 +45,48 @@ export function TasksWorkspace({
   setupIssue?: SetupIssue | null;
 }) {
   const [tasks, setTasks] = useState<Task[]>(sortTasks(initialTasks));
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(initialTasks[0]?.id ?? null);
   const [activeFilter, setActiveFilter] = useState<FilterKey>("today");
   const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null);
+  const [editorTaskId, setEditorTaskId] = useState<string | null>(null);
+  const [editorOpen, setEditorOpen] = useState(false);
 
   useEffect(() => {
     setTasks(sortTasks(initialTasks));
-    setSelectedTaskId(initialTasks[0]?.id ?? null);
   }, [initialTasks]);
 
-  const filteredTasks = tasks.filter((task) => {
-    if (activeFilter === "today") {
-      return isTaskDueToday(task);
-    }
+  const filteredTasks = useMemo(
+    () =>
+      tasks.filter((task) => {
+        if (activeFilter === "today") {
+          return !task.completed && isTaskDueToday(task);
+        }
 
-    if (activeFilter === "completed") {
-      return task.completed;
-    }
+        if (activeFilter === "completed") {
+          return task.completed;
+        }
 
-    return !task.completed;
-  });
+        return !task.completed;
+      }),
+    [activeFilter, tasks]
+  );
 
-  const selectedTask = tasks.find((task) => task.id === selectedTaskId) ?? null;
+  const selectedTask = tasks.find((task) => task.id === editorTaskId) ?? null;
   const summary = summarizeTaskState(tasks);
+  const filterSummary =
+    activeFilter === "today"
+      ? "Showing today's pending tasks first."
+      : activeFilter === "pending"
+        ? "Showing every pending task across your workspace."
+        : "Showing completed tasks for quick review.";
 
   const upsertTask = (task: Task) => {
     setTasks((current) => sortTasks([task, ...current.filter((entry) => entry.id !== task.id)]));
-    setSelectedTaskId(task.id);
+    setEditorTaskId(task.id);
   };
 
   const removeTask = (taskId: string) => {
     setTasks((current) => current.filter((entry) => entry.id !== taskId));
-    setSelectedTaskId((current) => (current === taskId ? null : current));
+    setEditorTaskId((current) => (current === taskId ? null : current));
   };
 
   const toggleTask = async (task: Task) => {
@@ -86,6 +110,16 @@ export function TasksWorkspace({
     } finally {
       setUpdatingTaskId(null);
     }
+  };
+
+  const openNewTask = () => {
+    setEditorTaskId(null);
+    setEditorOpen(true);
+  };
+
+  const openTask = (taskId: string) => {
+    setEditorTaskId(taskId);
+    setEditorOpen(true);
   };
 
   return (
@@ -112,7 +146,6 @@ export function TasksWorkspace({
       {setupIssue ? <SetupNotice issue={setupIssue} /> : null}
 
       {setupIssue ? null : (
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(340px,0.9fr)]">
         <div className="space-y-6">
           <Card className="space-y-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -121,6 +154,7 @@ export function TasksWorkspace({
                   Filters
                 </p>
                 <h2 className="mt-2 text-2xl font-bold text-stone-950">Filter tasks</h2>
+                <p className="mt-2 text-sm leading-6 text-stone-600">{filterSummary}</p>
               </div>
               <div className="flex flex-wrap gap-2">
                 {(["today", "pending", "completed"] as FilterKey[]).map((filter) => (
@@ -135,7 +169,7 @@ export function TasksWorkspace({
                     {filter.charAt(0).toUpperCase() + filter.slice(1)}
                   </Button>
                 ))}
-                <Button onClick={() => setSelectedTaskId(null)} size="sm">
+                <Button onClick={openNewTask} size="sm">
                   <Plus className="size-4" />
                   New task
                 </Button>
@@ -147,7 +181,7 @@ export function TasksWorkspace({
                 actionLabel="Create a task"
                 description="There are no tasks in this filter right now. Add a new one to keep your board alive."
                 icon={ClipboardList}
-                onAction={() => setSelectedTaskId(null)}
+                onAction={openNewTask}
                 title="Nothing here yet"
               />
             ) : (
@@ -156,9 +190,9 @@ export function TasksWorkspace({
                   <article
                     key={task.id}
                     className={`rounded-[1.75rem] border px-5 py-4 transition ${
-                      selectedTaskId === task.id
-                        ? "border-amber-200 bg-amber-50/80"
-                        : "border-stone-200 bg-white hover:border-amber-200 hover:bg-amber-50/40"
+                      editorTaskId === task.id && editorOpen
+                        ? "border-amber-200 bg-amber-50/80 shadow-[0_18px_36px_-28px_rgba(217,119,6,0.32)]"
+                        : "border-stone-200 bg-white hover:border-amber-200 hover:bg-amber-50/40 hover:shadow-[0_18px_36px_-28px_rgba(120,53,15,0.16)]"
                     }`}
                   >
                     <div className="flex items-start gap-4">
@@ -175,7 +209,7 @@ export function TasksWorkspace({
                       </button>
                       <button
                         className="min-w-0 flex-1 text-left"
-                        onClick={() => setSelectedTaskId(task.id)}
+                        onClick={() => openTask(task.id)}
                         type="button"
                       >
                         <div className="flex flex-wrap items-center gap-2">
@@ -191,6 +225,10 @@ export function TasksWorkspace({
                           <p className="mt-2 line-clamp-2 text-sm text-stone-600">{task.description}</p>
                         ) : null}
                       </button>
+                      <Button onClick={() => openTask(task.id)} size="sm" variant="secondary">
+                        <Eye className="size-4" />
+                        Open
+                      </Button>
                     </div>
                   </article>
                 ))}
@@ -198,17 +236,32 @@ export function TasksWorkspace({
             )}
           </Card>
         </div>
-
-        <div className="xl:sticky xl:top-8 xl:self-start">
-          <TaskForm
-            initialTask={selectedTask}
-            onCancel={() => setSelectedTaskId(null)}
-            onDeleted={removeTask}
-            onSaved={upsertTask}
-          />
-        </div>
-      </div>
       )}
+
+      <Modal
+        description={
+          selectedTask
+            ? "Review the task details, then edit or delete it from this popup."
+            : "Add a new task without leaving the workspace."
+        }
+        onClose={() => setEditorOpen(false)}
+        open={editorOpen}
+        title={selectedTask ? "Task details" : "New task"}
+      >
+        <TaskForm
+          compact
+          initialTask={selectedTask}
+          onCancel={() => setEditorOpen(false)}
+          onDeleted={(taskId) => {
+            removeTask(taskId);
+            setEditorOpen(false);
+          }}
+          onSaved={(task) => {
+            upsertTask(task);
+            setEditorOpen(false);
+          }}
+        />
+      </Modal>
     </div>
   );
 }

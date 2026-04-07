@@ -1,11 +1,11 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 
 import {
   ArrowRight,
   CheckSquare,
-  CircleAlert,
   Clock3,
   Focus,
   Lightbulb,
@@ -15,9 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-import { NoteForm } from "@/components/note-form";
 import { SetupNotice } from "@/components/setup-notice";
-import { TaskForm } from "@/components/task-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Modal } from "@/components/ui/modal";
@@ -47,6 +45,14 @@ type ActivityItem = {
   date: string;
   href: string;
 };
+
+const TaskForm = dynamic(
+  () => import("@/components/task-form").then((module) => module.TaskForm)
+);
+
+const NoteForm = dynamic(
+  () => import("@/components/note-form").then((module) => module.NoteForm)
+);
 
 function estimateFocusMinutes(tasks: Task[]) {
   return tasks.filter((task) => task.completed).length * 25;
@@ -106,6 +112,7 @@ export function DashboardView({
     const now = new Date();
     return dueDate.toDateString() === now.toDateString();
   });
+  const topTodayTasks = dueTodayTasks.slice(0, 2);
 
   const completionRate = clampPercent(summary.total ? (summary.completed / summary.total) * 100 : 0);
   const focusScore = clampPercent((focusMinutes / 180) * 100);
@@ -158,7 +165,10 @@ export function DashboardView({
           ? `${summary.today} task${summary.today === 1 ? "" : "s"} due today`
           : "No tasks due today",
       description: overdueCount > 0 ? `${overdueCount} overdue need attention` : "Your task board is under control",
-      preview: dueTodayTasks[0]?.title || overdueTasks[0]?.title || "Nothing urgent is waiting right now.",
+      preview:
+        topTodayTasks.map((task) => task.title).join(" • ") ||
+        overdueTasks[0]?.title ||
+        "Nothing urgent is waiting right now.",
       href: "/tasks",
       cta: "View tasks",
       icon: CheckSquare
@@ -175,7 +185,7 @@ export function DashboardView({
     {
       title: "Focus",
       summary: pinnedNote ? "Pinned note ready for focus" : "Start a distraction-light session",
-      description: pinnedNote?.title || "Use Focus when you want only today’s work and one note",
+      description: pinnedNote?.title || "Use Focus when you want only today's work and one note",
       preview:
         pinnedNote?.content ||
         "Focus Mode stays intentionally minimal. It is optional, but helpful when you want a clean sprint view.",
@@ -394,15 +404,27 @@ export function DashboardView({
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">Today at a glance</p>
               <div className="mt-4 space-y-4">
                 <div className="rounded-[1.2rem] bg-stone-50 px-4 py-4">
-                  <p className="text-sm font-semibold text-stone-900">Next task up</p>
-                  <p className="mt-2 text-sm leading-6 text-stone-600">
-                    {dueTodayTasks[0]?.title || overdueTasks[0]?.title || "No urgent task is waiting right now."}
-                  </p>
-                  {dueTodayTasks[0]?.due_date || overdueTasks[0]?.due_date ? (
-                    <p className="mt-2 text-xs font-medium text-stone-500">
-                      {formatTaskDate(dueTodayTasks[0]?.due_date || overdueTasks[0]?.due_date)}
-                    </p>
-                  ) : null}
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold text-stone-900">Top two tasks for today</p>
+                    <Link className="text-xs font-semibold text-amber-700 transition hover:text-amber-800" href="/tasks">
+                      Open tasks
+                    </Link>
+                  </div>
+                  <div className="mt-3 space-y-3">
+                    {topTodayTasks.length > 0 ? (
+                      topTodayTasks.map((task) => (
+                        <div
+                          key={task.id}
+                          className="rounded-[1rem] bg-white px-3 py-3 shadow-[0_14px_30px_-24px_rgba(120,53,15,0.14)]"
+                        >
+                          <p className="text-sm font-semibold text-stone-900">{task.title}</p>
+                          <p className="mt-1 text-xs font-medium text-stone-500">{formatTaskDate(task.due_date)}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm leading-6 text-stone-600">No pending tasks are due today right now.</p>
+                    )}
+                  </div>
                 </div>
                 <div className="rounded-[1.2rem] bg-stone-50 px-4 py-4">
                   <p className="text-sm font-semibold text-stone-900">Focus context</p>
@@ -447,7 +469,7 @@ export function DashboardView({
       </Modal>
 
       <Modal
-        description="Focus Mode stays minimal and optional. Use it when you want only today’s tasks and one pinned note."
+        description="Focus Mode stays minimal and optional. Use it when you want only today's tasks and one pinned note."
         onClose={() => setQuickAction(null)}
         open={quickAction === "focus"}
         title="Start focus"
