@@ -105,13 +105,13 @@ export function NoteForm({
   };
 
   return (
-    <Card className="space-y-5">
+    <Card className={compact ? "space-y-5 rounded-[1.5rem] p-4 shadow-none" : "space-y-5"}>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-600 dark:text-gray-500">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-600">
             {isEditing ? "Edit note" : "Quick add note"}
           </p>
-          <h3 className="mt-2 text-2xl font-bold text-slate-950 dark:text-white">
+          <h3 className={`mt-2 font-bold text-slate-950 ${compact ? "text-xl" : "text-2xl"}`}>
             {isEditing ? "Update note" : "Add a note"}
           </h3>
         </div>
@@ -125,7 +125,7 @@ export function NoteForm({
 
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-800 dark:text-gray-500" htmlFor="note-title">
+          <label className="text-sm font-medium text-slate-800" htmlFor="note-title">
             Title
           </label>
           <Input
@@ -137,7 +137,7 @@ export function NoteForm({
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-800 dark:text-gray-500" htmlFor="note-content">
+          <label className="text-sm font-medium text-slate-800" htmlFor="note-content">
             Content
           </label>
           <Textarea
@@ -150,7 +150,7 @@ export function NoteForm({
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-800 dark:text-gray-500" htmlFor="note-tags">
+          <label className="text-sm font-medium text-slate-800" htmlFor="note-tags">
             Tags
           </label>
           <Input
@@ -161,7 +161,7 @@ export function NoteForm({
           />
         </div>
 
-        <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300">
+        <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800">
           <input
             checked={pinned}
             className="size-4 rounded border-slate-300 text-teal-500 focus:ring-teal-500"

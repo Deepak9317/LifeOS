@@ -30,18 +30,18 @@ export function Modal({
       <div
         aria-modal="true"
         className={cn(
-          "w-full max-w-2xl rounded-[2rem] border border-white/90 bg-white/95 p-6 shadow-[0_30px_90px_-40px_rgba(15,23,42,0.45)] dark:border-gray-800 dark:bg-gray-900",
+          "w-full max-w-2xl rounded-[2rem] border border-white/90 bg-white/95 p-5 shadow-[0_30px_90px_-40px_rgba(15,23,42,0.45)]",
           className
         )}
         role="dialog"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-slate-950 dark:text-white">{title}</h2>
-            {description ? <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-gray-300">{description}</p> : null}
+            <h2 className="text-xl font-bold text-slate-950">{title}</h2>
+            {description ? <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p> : null}
           </div>
           <button
-            className="inline-flex size-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-600 transition hover:bg-slate-200 hover:text-slate-900 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+            className="inline-flex size-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-600 transition hover:bg-slate-200 hover:text-slate-900"
             onClick={onClose}
             type="button"
           >

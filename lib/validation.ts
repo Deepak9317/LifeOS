@@ -78,6 +78,11 @@ const noteShape = {
   tags: z.array(z.string().trim().min(1).max(24)).max(10).optional()
 };
 
+const budgetAmountSchema = z.coerce
+  .number({ message: "Enter a valid amount." })
+  .positive("Amount must be greater than zero.")
+  .max(1000000000, "Amount is too large.");
+
 export const noteSchema = z
   .object({
     ...noteShape,
@@ -93,6 +98,47 @@ export const noteUpdateSchema = z.object(noteShape).partial().refine(
   "Provide at least one field to update."
 );
 
+const budgetEntryShape = {
+  title: z.string().trim().min(1, "Entry title is required.").max(120),
+  amount: budgetAmountSchema,
+  type: z.enum(["income", "expense"]),
+  category: z.string().trim().min(1, "Category is required.").max(40),
+  entryDate: z
+    .string()
+    .trim()
+    .optional()
+    .nullable()
+    .refine(
+      (value) =>
+        value === undefined ||
+        value === null ||
+        value === "" ||
+        !Number.isNaN(new Date(value).getTime()),
+      "Use a valid date."
+    )
+};
+
+export const budgetEntrySchema = z.object({
+  ...budgetEntryShape
+});
+
+export const budgetEntryUpdateSchema = z.object(budgetEntryShape).partial().refine(
+  (value) => Object.keys(value).length > 0,
+  "Provide at least one field to update."
+);
+
+export const budgetSettingsSchema = z.object({
+  monthlyBudget: z.coerce
+    .number({ message: "Enter a valid monthly budget." })
+    .min(0, "Monthly budget cannot be negative.")
+    .max(1000000000, "Monthly budget is too large."),
+  currencyCode: z
+    .string()
+    .trim()
+    .length(3, "Use a 3-letter currency code.")
+    .transform((value) => value.toUpperCase())
+});
+
 export type TaskInput = z.infer<typeof taskSchema>;
 export type TaskUpdateInput = z.infer<typeof taskUpdateSchema>;
 export type NoteInput = z.infer<typeof noteSchema>;
@@ -101,3 +147,6 @@ export type SignupInput = z.infer<typeof signupSchema>;
 export type ProfileInput = z.infer<typeof profileSchema>;
 export type PasswordChangeInput = z.infer<typeof passwordChangeSchema>;
 export type PasswordResetInput = z.infer<typeof passwordResetSchema>;
+export type BudgetEntryInput = z.infer<typeof budgetEntrySchema>;
+export type BudgetEntryUpdateInput = z.infer<typeof budgetEntryUpdateSchema>;
+export type BudgetSettingsInput = z.infer<typeof budgetSettingsSchema>;

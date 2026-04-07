@@ -7,6 +7,13 @@ exception
   when duplicate_object then null;
 end $$;
 
+do $$
+begin
+  create type public.budget_entry_type as enum ('income', 'expense');
+exception
+  when duplicate_object then null;
+end $$;
+
 create table if not exists public.tasks (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users (id) on delete cascade,
@@ -38,6 +45,25 @@ create table if not exists public.profiles (
   updated_at timestamptz not null default timezone('utc', now())
 );
 
+create table if not exists public.budget_entries (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  title text not null,
+  amount double precision not null,
+  type public.budget_entry_type not null default 'expense',
+  category text not null default 'other',
+  entry_date date not null default current_date,
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+create table if not exists public.budget_settings (
+  user_id uuid primary key references auth.users (id) on delete cascade,
+  monthly_budget double precision not null default 0,
+  currency_code text not null default 'INR',
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
 alter table public.tasks add column if not exists id uuid default gen_random_uuid();
 alter table public.tasks add column if not exists user_id uuid;
 alter table public.tasks add column if not exists title text;
@@ -62,6 +88,19 @@ alter table public.profiles add column if not exists country_code text;
 alter table public.profiles add column if not exists avatar_url text;
 alter table public.profiles add column if not exists created_at timestamptz default timezone('utc', now());
 alter table public.profiles add column if not exists updated_at timestamptz default timezone('utc', now());
+alter table public.budget_entries add column if not exists id uuid default gen_random_uuid();
+alter table public.budget_entries add column if not exists user_id uuid;
+alter table public.budget_entries add column if not exists title text;
+alter table public.budget_entries add column if not exists amount double precision default 0;
+alter table public.budget_entries add column if not exists type public.budget_entry_type default 'expense';
+alter table public.budget_entries add column if not exists category text default 'other';
+alter table public.budget_entries add column if not exists entry_date date default current_date;
+alter table public.budget_entries add column if not exists created_at timestamptz default timezone('utc', now());
+alter table public.budget_settings add column if not exists user_id uuid;
+alter table public.budget_settings add column if not exists monthly_budget double precision default 0;
+alter table public.budget_settings add column if not exists currency_code text default 'INR';
+alter table public.budget_settings add column if not exists created_at timestamptz default timezone('utc', now());
+alter table public.budget_settings add column if not exists updated_at timestamptz default timezone('utc', now());
 
 do $$
 begin
@@ -160,6 +199,14 @@ update public.notes set tags = '{}'::text[] where tags is null;
 update public.notes set created_at = timezone('utc', now()) where created_at is null;
 update public.profiles set created_at = timezone('utc', now()) where created_at is null;
 update public.profiles set updated_at = timezone('utc', now()) where updated_at is null;
+update public.budget_entries set amount = 0 where amount is null;
+update public.budget_entries set category = 'other' where category is null;
+update public.budget_entries set entry_date = current_date where entry_date is null;
+update public.budget_entries set created_at = timezone('utc', now()) where created_at is null;
+update public.budget_settings set monthly_budget = 0 where monthly_budget is null;
+update public.budget_settings set currency_code = 'INR' where currency_code is null;
+update public.budget_settings set created_at = timezone('utc', now()) where created_at is null;
+update public.budget_settings set updated_at = timezone('utc', now()) where updated_at is null;
 
 alter table public.tasks alter column id set default gen_random_uuid();
 alter table public.tasks alter column priority set default 'medium';
@@ -170,6 +217,15 @@ alter table public.notes alter column tags set default '{}';
 alter table public.notes alter column created_at set default timezone('utc', now());
 alter table public.profiles alter column created_at set default timezone('utc', now());
 alter table public.profiles alter column updated_at set default timezone('utc', now());
+alter table public.budget_entries alter column id set default gen_random_uuid();
+alter table public.budget_entries alter column type set default 'expense';
+alter table public.budget_entries alter column category set default 'other';
+alter table public.budget_entries alter column entry_date set default current_date;
+alter table public.budget_entries alter column created_at set default timezone('utc', now());
+alter table public.budget_settings alter column monthly_budget set default 0;
+alter table public.budget_settings alter column currency_code set default 'INR';
+alter table public.budget_settings alter column created_at set default timezone('utc', now());
+alter table public.budget_settings alter column updated_at set default timezone('utc', now());
 
 do $$
 begin
@@ -212,6 +268,30 @@ begin
   if not exists (
     select 1
     from pg_constraint
+    where conrelid = 'public.budget_entries'::regclass
+      and contype = 'p'
+  ) then
+    alter table public.budget_entries add constraint budget_entries_pkey primary key (id);
+  end if;
+end $$;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conrelid = 'public.budget_settings'::regclass
+      and contype = 'p'
+  ) then
+    alter table public.budget_settings add constraint budget_settings_pkey primary key (user_id);
+  end if;
+end $$;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
     where conname = 'tasks_user_id_fkey'
       and conrelid = 'public.tasks'::regclass
   ) then
@@ -235,6 +315,34 @@ begin
   end if;
 end $$;
 
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'budget_entries_user_id_fkey'
+      and conrelid = 'public.budget_entries'::regclass
+  ) then
+    alter table public.budget_entries
+      add constraint budget_entries_user_id_fkey
+      foreign key (user_id) references auth.users (id) on delete cascade;
+  end if;
+end $$;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'budget_settings_user_id_fkey'
+      and conrelid = 'public.budget_settings'::regclass
+  ) then
+    alter table public.budget_settings
+      add constraint budget_settings_user_id_fkey
+      foreign key (user_id) references auth.users (id) on delete cascade;
+  end if;
+end $$;
+
 alter table public.tasks alter column user_id set not null;
 alter table public.tasks alter column title set not null;
 alter table public.tasks alter column priority set not null;
@@ -247,6 +355,18 @@ alter table public.profiles alter column id set not null;
 alter table public.profiles alter column email set not null;
 alter table public.profiles alter column created_at set not null;
 alter table public.profiles alter column updated_at set not null;
+alter table public.budget_entries alter column user_id set not null;
+alter table public.budget_entries alter column title set not null;
+alter table public.budget_entries alter column amount set not null;
+alter table public.budget_entries alter column type set not null;
+alter table public.budget_entries alter column category set not null;
+alter table public.budget_entries alter column entry_date set not null;
+alter table public.budget_entries alter column created_at set not null;
+alter table public.budget_settings alter column user_id set not null;
+alter table public.budget_settings alter column monthly_budget set not null;
+alter table public.budget_settings alter column currency_code set not null;
+alter table public.budget_settings alter column created_at set not null;
+alter table public.budget_settings alter column updated_at set not null;
 
 comment on column public.notes.tags is 'Use the reserved pinned tag to surface a note in Focus Mode.';
 
@@ -256,13 +376,20 @@ create index if not exists tasks_user_created_idx on public.tasks (user_id, crea
 create index if not exists notes_user_created_idx on public.notes (user_id, created_at desc);
 create index if not exists notes_tags_gin_idx on public.notes using gin (tags);
 create index if not exists profiles_email_idx on public.profiles (email);
+create index if not exists budget_entries_user_date_idx on public.budget_entries (user_id, entry_date desc);
+create index if not exists budget_entries_user_type_idx on public.budget_entries (user_id, type);
+create index if not exists budget_entries_user_category_idx on public.budget_entries (user_id, category);
 
 alter table public.tasks enable row level security;
 alter table public.notes enable row level security;
 alter table public.profiles enable row level security;
+alter table public.budget_entries enable row level security;
+alter table public.budget_settings enable row level security;
 alter table public.tasks force row level security;
 alter table public.notes force row level security;
 alter table public.profiles force row level security;
+alter table public.budget_entries force row level security;
+alter table public.budget_settings force row level security;
 
 drop policy if exists "Users can view their own tasks" on public.tasks;
 drop policy if exists "Users can insert their own tasks" on public.tasks;
@@ -315,6 +442,52 @@ create policy "Users can delete their own notes"
 on public.notes
 for delete
 using (auth.uid() = user_id);
+
+drop policy if exists "Users can view their own budget entries" on public.budget_entries;
+drop policy if exists "Users can insert their own budget entries" on public.budget_entries;
+drop policy if exists "Users can update their own budget entries" on public.budget_entries;
+drop policy if exists "Users can delete their own budget entries" on public.budget_entries;
+
+create policy "Users can view their own budget entries"
+on public.budget_entries
+for select
+using (auth.uid() = user_id);
+
+create policy "Users can insert their own budget entries"
+on public.budget_entries
+for insert
+with check (auth.uid() = user_id);
+
+create policy "Users can update their own budget entries"
+on public.budget_entries
+for update
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+create policy "Users can delete their own budget entries"
+on public.budget_entries
+for delete
+using (auth.uid() = user_id);
+
+drop policy if exists "Users can view their own budget settings" on public.budget_settings;
+drop policy if exists "Users can insert their own budget settings" on public.budget_settings;
+drop policy if exists "Users can update their own budget settings" on public.budget_settings;
+
+create policy "Users can view their own budget settings"
+on public.budget_settings
+for select
+using (auth.uid() = user_id);
+
+create policy "Users can insert their own budget settings"
+on public.budget_settings
+for insert
+with check (auth.uid() = user_id);
+
+create policy "Users can update their own budget settings"
+on public.budget_settings
+for update
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
 
 drop policy if exists "Users can view their own profile" on public.profiles;
 drop policy if exists "Users can update their own profile" on public.profiles;
@@ -386,3 +559,5 @@ grant usage on schema public to authenticated;
 grant select, insert, update, delete on public.tasks to authenticated;
 grant select, insert, update, delete on public.notes to authenticated;
 grant select, update on public.profiles to authenticated;
+grant select, insert, update, delete on public.budget_entries to authenticated;
+grant select, insert, update on public.budget_settings to authenticated;

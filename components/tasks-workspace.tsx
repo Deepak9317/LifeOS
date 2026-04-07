@@ -239,6 +239,7 @@ export function TasksWorkspace({
       )}
 
       <Modal
+        className="max-w-xl"
         description={
           selectedTask
             ? "Review the task details, then edit or delete it from this popup."

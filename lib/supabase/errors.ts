@@ -5,14 +5,19 @@ const setupErrorMatchers = [
   "schema cache",
   "column tasks.",
   "column notes.",
+  "column budget_entries.",
+  "column budget_settings.",
   "relation \"public.tasks\" does not exist",
   "relation \"public.notes\" does not exist",
-  "type \"public.task_priority\" does not exist"
+  "relation \"public.budget_entries\" does not exist",
+  "relation \"public.budget_settings\" does not exist",
+  "type \"public.task_priority\" does not exist",
+  "type \"public.budget_entry_type\" does not exist"
 ];
 
 const setupIssue: SetupIssue = {
   title: "Finish Supabase setup",
-  description: "The deployed database is missing the LifeOS tasks or notes schema.",
+  description: "The deployed database is missing the LifeOS app schema.",
   action: "Run the SQL in supabase/setup.sql in Supabase, then refresh the app."
 };
 

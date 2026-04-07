@@ -31,6 +31,27 @@ export type Profile = {
   updated_at: string;
 };
 
+export type BudgetEntryType = "income" | "expense";
+
+export type BudgetEntry = {
+  id: string;
+  user_id: string;
+  title: string;
+  amount: number;
+  type: BudgetEntryType;
+  category: string;
+  entry_date: string;
+  created_at: string;
+};
+
+export type BudgetSettings = {
+  user_id: string;
+  monthly_budget: number;
+  currency_code: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type TaskInsert = {
   id?: string;
   user_id: string;
@@ -68,6 +89,29 @@ export type ProfileInsert = {
 
 export type ProfileUpdate = Partial<Omit<ProfileInsert, "id" | "email" | "created_at">>;
 
+export type BudgetEntryInsert = {
+  id?: string;
+  user_id: string;
+  title: string;
+  amount: number;
+  type: BudgetEntryType;
+  category: string;
+  entry_date?: string;
+  created_at?: string;
+};
+
+export type BudgetEntryUpdate = Partial<Omit<BudgetEntryInsert, "user_id">>;
+
+export type BudgetSettingsInsert = {
+  user_id: string;
+  monthly_budget?: number;
+  currency_code?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type BudgetSettingsUpdate = Partial<Omit<BudgetSettingsInsert, "user_id" | "created_at">>;
+
 export type Database = {
   public: {
     Tables: {
@@ -89,11 +133,24 @@ export type Database = {
         Update: ProfileUpdate;
         Relationships: [];
       };
+      budget_entries: {
+        Row: BudgetEntry;
+        Insert: BudgetEntryInsert;
+        Update: BudgetEntryUpdate;
+        Relationships: [];
+      };
+      budget_settings: {
+        Row: BudgetSettings;
+        Insert: BudgetSettingsInsert;
+        Update: BudgetSettingsUpdate;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
     Enums: {
       task_priority: TaskPriority;
+      budget_entry_type: BudgetEntryType;
     };
     CompositeTypes: Record<string, never>;
   };
