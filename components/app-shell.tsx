@@ -37,7 +37,7 @@ export function AppShell({
   return (
     <div className="min-h-screen">
       <div className="mx-auto flex min-h-screen w-full max-w-[1680px] gap-5 px-4 py-4 sm:px-6">
-        <aside className="hidden w-[296px] shrink-0 rounded-[2rem] border border-white/85 bg-white/78 p-6 shadow-[0_20px_70px_-40px_rgba(15,23,42,0.28)] backdrop-blur dark:border-gray-800 dark:bg-gray-950 xl:flex xl:flex-col">
+        <aside className="hidden w-[296px] shrink-0 rounded-[2rem] border border-amber-100/70 bg-[rgba(255,252,247,0.82)] p-6 shadow-[0_24px_70px_-42px_rgba(120,53,15,0.16)] backdrop-blur xl:flex xl:flex-col">
           <div className="flex-1 space-y-8">
             <Logo />
             <nav className="space-y-2">
@@ -51,8 +51,8 @@ export function AppShell({
                     className={cn(
                       "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition",
                       active
-                        ? "bg-[linear-gradient(135deg,rgba(207,250,254,0.95),rgba(220,252,231,0.95))] text-slate-950 ring-1 ring-teal-100 shadow-[0_18px_40px_-30px_rgba(13,148,136,0.6)] dark:bg-gray-900 dark:text-white dark:ring-gray-800"
-                        : "text-slate-700 hover:bg-white/80 hover:text-slate-950 dark:text-gray-300 dark:hover:bg-gray-900 dark:hover:text-white"
+                        ? "bg-[linear-gradient(135deg,rgba(254,243,199,0.98),rgba(204,251,241,0.96))] text-stone-950 ring-1 ring-amber-100 shadow-[0_18px_40px_-30px_rgba(217,119,6,0.25)]"
+                        : "text-stone-600 hover:bg-white/90 hover:text-stone-950"
                     )}
                     href={item.href}
                   >
@@ -64,23 +64,23 @@ export function AppShell({
             </nav>
           </div>
 
-          <div className="space-y-4 rounded-[1.75rem] border border-white/80 bg-white/75 px-4 py-5 dark:border-gray-800 dark:bg-gray-900">
+          <div className="space-y-4 rounded-[1.75rem] border border-amber-100/70 bg-white/72 px-4 py-5">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-600 dark:text-gray-500">Signed in</p>
-              <p className="mt-2 text-sm font-semibold text-slate-900 dark:text-white">{userEmail}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Signed in</p>
+              <p className="mt-2 text-sm font-semibold text-stone-950">{userEmail}</p>
             </div>
-            <div className="rounded-2xl bg-slate-950/5 px-3 py-2 dark:bg-gray-950">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-gray-500">
+            <div className="rounded-2xl bg-amber-50 px-3 py-2">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
                 Version
               </p>
-              <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">v{APP_VERSION}</p>
+              <p className="mt-1 text-sm font-semibold text-stone-950">v{APP_VERSION}</p>
             </div>
             <UserAvatarMenu email={userEmail} name={profileName} />
           </div>
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col gap-4">
-          <div className="flex items-center justify-between rounded-[1.75rem] border border-white/80 bg-white/80 px-4 py-3 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-950">
+          <div className="flex items-center justify-between rounded-[1.75rem] border border-amber-100/70 bg-[rgba(255,253,249,0.86)] px-4 py-3 shadow-[0_18px_48px_-36px_rgba(120,53,15,0.16)] backdrop-blur">
             <Logo compact />
             <div className="flex items-center gap-2">
               <Button onClick={() => setMobileOpen((current) => !current)} size="sm" variant="secondary">
@@ -90,7 +90,7 @@ export function AppShell({
           </div>
 
           {mobileOpen ? (
-            <div className="rounded-[1.75rem] border border-white/80 bg-white/90 p-4 shadow-sm xl:hidden dark:border-gray-800 dark:bg-gray-950">
+            <div className="rounded-[1.75rem] border border-amber-100/70 bg-[rgba(255,253,249,0.92)] p-4 shadow-[0_18px_48px_-36px_rgba(120,53,15,0.16)] xl:hidden">
               <nav className="space-y-2">
                 {navigation.map((item) => {
                   const Icon = item.icon;
@@ -102,8 +102,8 @@ export function AppShell({
                       className={cn(
                         "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition",
                         active
-                          ? "bg-[linear-gradient(135deg,rgba(207,250,254,0.95),rgba(220,252,231,0.95))] text-slate-950 ring-1 ring-teal-100 dark:bg-gray-900 dark:text-white dark:ring-gray-800"
-                          : "text-slate-700 hover:bg-white hover:text-slate-950 dark:text-gray-300 dark:hover:bg-gray-900 dark:hover:text-white"
+                          ? "bg-[linear-gradient(135deg,rgba(254,243,199,0.98),rgba(204,251,241,0.96))] text-stone-950 ring-1 ring-amber-100"
+                          : "text-stone-600 hover:bg-white hover:text-stone-950"
                       )}
                       href={item.href}
                       onClick={() => setMobileOpen(false)}
@@ -114,11 +114,11 @@ export function AppShell({
                   );
                 })}
               </nav>
-              <div className="mt-4 rounded-2xl bg-slate-950/5 px-4 py-3 dark:bg-gray-900">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-gray-500">
+              <div className="mt-4 rounded-2xl bg-amber-50 px-4 py-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
                   Version
                 </p>
-                <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">v{APP_VERSION}</p>
+                <p className="mt-1 text-sm font-semibold text-stone-950">v{APP_VERSION}</p>
               </div>
               <div className="mt-4">
                 <UserAvatarMenu email={userEmail} name={profileName} />

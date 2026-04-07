@@ -249,19 +249,19 @@ export function DashboardView({
 
   return (
     <div className="space-y-6 p-1">
-      <section className="animate-fade-up rounded-[2rem] bg-[linear-gradient(135deg,rgba(255,255,255,0.97),rgba(239,248,245,0.94),rgba(240,249,255,0.92))] px-6 py-8 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.22)] dark:border dark:border-gray-800 dark:bg-gray-900 dark:[background-image:none] sm:px-8">
+      <section className="animate-fade-up rounded-[2rem] bg-[linear-gradient(135deg,rgba(255,252,247,0.98),rgba(254,243,199,0.42),rgba(204,251,241,0.34))] px-6 py-8 shadow-[0_24px_80px_-42px_rgba(120,53,15,0.16)] sm:px-8">
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.3fr)_360px]">
           <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 rounded-full bg-slate-950/5 px-3 py-1.5 text-sm font-semibold text-slate-700 dark:bg-gray-950 dark:text-gray-300">
-              <Sparkles className="size-4 text-teal-600" />
+            <div className="inline-flex items-center gap-2 rounded-full bg-stone-950 px-3 py-1.5 text-sm font-semibold text-white">
+              <Sparkles className="size-4 text-amber-300" />
               LifeOS control center
             </div>
             <div className="space-y-2">
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-teal-700 dark:text-gray-500">{todayName}</p>
-              <h1 className="text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-700">{todayName}</p>
+              <h1 className="text-3xl font-bold tracking-tight text-stone-950 sm:text-4xl">
                 Good day. Here is what matters now.
               </h1>
-              <p className="max-w-3xl text-sm leading-6 text-slate-600 dark:text-gray-300 sm:text-base">{dynamicSummary}</p>
+              <p className="max-w-3xl text-sm leading-6 text-stone-600 sm:text-base">{dynamicSummary}</p>
             </div>
 
             <div className="flex flex-wrap gap-3">
@@ -280,25 +280,25 @@ export function DashboardView({
             </div>
           </div>
 
-          <Card className="animate-fade-up rounded-[1.75rem] bg-white/78 p-5 shadow-[0_18px_50px_-36px_rgba(15,23,42,0.22)] dark:bg-gray-900 [animation-delay:50ms]">
+          <Card className="animate-fade-up rounded-[1.75rem] bg-[rgba(44,34,24,0.96)] p-5 text-white shadow-[0_22px_54px_-34px_rgba(68,64,60,0.5)] [animation-delay:50ms]">
             <div className="flex items-start gap-3">
               <div className="inline-flex size-10 items-center justify-center rounded-[1rem] bg-amber-400/15 text-amber-700">
                 <Lightbulb className="size-5" />
               </div>
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-gray-500">Recommended</p>
-                  <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">Smart suggestions</h2>
+                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-stone-400">Recommended</p>
+                  <h2 className="mt-1 text-xl font-bold text-white">Smart suggestions</h2>
                 </div>
                 <div className="space-y-2">
                   {recommendations.map((item) => (
                     <Link
                       key={item.title}
-                      className="block rounded-[1.2rem] bg-white/90 px-4 py-3 transition hover:scale-[1.01] hover:shadow-[0_14px_30px_-22px_rgba(15,23,42,0.28)] dark:bg-gray-950"
+                      className="block rounded-[1.2rem] bg-[rgba(17,24,39,0.44)] px-4 py-3 transition hover:scale-[1.01] hover:shadow-[0_14px_30px_-22px_rgba(15,23,42,0.28)]"
                       href={item.href}
                     >
-                      <p className="text-sm font-semibold text-slate-900 dark:text-white">{item.title}</p>
-                      <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-gray-300">{item.detail}</p>
+                      <p className="text-sm font-semibold text-white">{item.title}</p>
+                      <p className="mt-1 text-sm leading-6 text-stone-300">{item.detail}</p>
                     </Link>
                   ))}
                 </div>
@@ -316,17 +316,17 @@ export function DashboardView({
             {stats.map((stat, index) => (
               <Card
                 key={stat.label}
-                className={`card-hover animate-fade-up rounded-[1.75rem] bg-white/90 p-5 shadow-[0_20px_50px_-38px_rgba(15,23,42,0.18)] dark:bg-gray-900 [animation-delay:${index * 40}ms]`}
+                className={`card-hover animate-fade-up rounded-[1.75rem] bg-[rgba(255,253,249,0.94)] p-5 shadow-[0_20px_50px_-38px_rgba(120,53,15,0.14)] [animation-delay:${index * 40}ms]`}
               >
-                <p className="text-sm text-slate-500 dark:text-gray-500">{stat.label}</p>
-                <p className="mt-3 text-3xl font-bold text-slate-950 dark:text-white">{stat.value}</p>
-                <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-gray-800">
+                <p className="text-sm text-stone-500">{stat.label}</p>
+                <p className="mt-3 text-3xl font-bold text-stone-950">{stat.value}</p>
+                <div className="mt-4 h-2 overflow-hidden rounded-full bg-stone-100">
                   <div
                     className={`h-full rounded-full bg-gradient-to-r ${stat.tone}`}
                     style={{ width: `${stat.percent}%` }}
                   />
                 </div>
-                <p className="mt-3 text-sm text-slate-600 dark:text-gray-300">{stat.meta}</p>
+                <p className="mt-3 text-sm text-stone-600">{stat.meta}</p>
               </Card>
             ))}
           </section>
@@ -338,23 +338,23 @@ export function DashboardView({
               return (
                 <Link key={card.title} className="block" href={card.href}>
                   <Card
-                    className={`card-hover animate-fade-up rounded-[1.75rem] bg-white/92 p-5 shadow-[0_20px_50px_-38px_rgba(15,23,42,0.2)] dark:bg-gray-900 [animation-delay:${index * 40}ms]`}
+                    className={`card-hover animate-fade-up rounded-[1.75rem] bg-[rgba(255,253,249,0.96)] p-5 shadow-[0_20px_50px_-38px_rgba(120,53,15,0.16)] [animation-delay:${index * 40}ms]`}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0 space-y-3">
-                        <div className="inline-flex size-11 items-center justify-center rounded-[1rem] bg-slate-950/5 text-slate-700 dark:bg-gray-950 dark:text-gray-300">
+                        <div className="inline-flex size-11 items-center justify-center rounded-[1rem] bg-amber-50 text-amber-700">
                           <Icon className="size-5" />
                         </div>
                         <div>
-                          <h2 className="text-xl font-bold text-slate-950 dark:text-white">{card.title}</h2>
-                          <p className="mt-2 text-sm font-medium text-slate-800 dark:text-gray-300">{card.summary}</p>
-                          <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-gray-300">{card.description}</p>
+                          <h2 className="text-xl font-bold text-stone-950">{card.title}</h2>
+                          <p className="mt-2 text-sm font-medium text-stone-800">{card.summary}</p>
+                          <p className="mt-1 text-sm leading-6 text-stone-600">{card.description}</p>
                         </div>
-                        <div className="rounded-[1.1rem] bg-slate-50/90 px-4 py-3 dark:bg-gray-950">
-                          <p className="line-clamp-2 text-sm leading-6 text-slate-600 dark:text-gray-300">{card.preview}</p>
+                        <div className="rounded-[1.1rem] bg-amber-50/70 px-4 py-3">
+                          <p className="line-clamp-2 text-sm leading-6 text-stone-600">{card.preview}</p>
                         </div>
                       </div>
-                      <span className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-900 transition group-hover:bg-slate-50 dark:border-gray-800 dark:bg-gray-950 dark:text-white dark:group-hover:bg-gray-800">
+                      <span className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-2xl border border-amber-200 bg-white px-4 text-sm font-semibold text-stone-900 transition group-hover:bg-amber-50">
                         {card.cta}
                         <ArrowRight className="size-4" />
                       </span>
@@ -366,47 +366,47 @@ export function DashboardView({
           </section>
 
           <section className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
-            <Card className="card-hover animate-fade-up rounded-[1.75rem] bg-white/92 p-5 shadow-[0_20px_50px_-38px_rgba(15,23,42,0.18)] dark:bg-gray-900 [animation-delay:180ms]">
+            <Card className="card-hover animate-fade-up rounded-[1.75rem] bg-[rgba(255,253,249,0.96)] p-5 shadow-[0_20px_50px_-38px_rgba(120,53,15,0.14)] [animation-delay:180ms]">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-gray-500">Recent activity</p>
-                  <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">Latest from your workspace</h2>
+                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">Recent activity</p>
+                  <h2 className="mt-1 text-xl font-bold text-stone-950">Latest from your workspace</h2>
                 </div>
               </div>
               <div className="mt-5 space-y-3">
                 {recentActivity.map((item) => (
                   <Link
                     key={item.id}
-                    className="flex items-start justify-between gap-4 rounded-[1.2rem] bg-slate-50/80 px-4 py-3 transition hover:scale-[1.01] hover:shadow-[0_16px_32px_-26px_rgba(15,23,42,0.22)] dark:bg-gray-950"
+                    className="flex items-start justify-between gap-4 rounded-[1.2rem] bg-stone-50 px-4 py-3 transition hover:scale-[1.01] hover:shadow-[0_16px_32px_-26px_rgba(120,53,15,0.16)]"
                     href={item.href}
                   >
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-slate-900 dark:text-white">{item.label}</p>
-                      <p className="mt-1 truncate text-sm text-slate-600 dark:text-gray-300">{item.detail}</p>
+                      <p className="text-sm font-semibold text-stone-900">{item.label}</p>
+                      <p className="mt-1 truncate text-sm text-stone-600">{item.detail}</p>
                     </div>
-                    <p className="shrink-0 text-xs font-medium text-slate-500 dark:text-gray-500">{formatFullDate(item.date)}</p>
+                    <p className="shrink-0 text-xs font-medium text-stone-500">{formatFullDate(item.date)}</p>
                   </Link>
                 ))}
               </div>
             </Card>
 
-            <Card className="card-hover animate-fade-up rounded-[1.75rem] bg-white/92 p-5 shadow-[0_20px_50px_-38px_rgba(15,23,42,0.18)] dark:bg-gray-900 [animation-delay:220ms]">
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-gray-500">Today at a glance</p>
+            <Card className="card-hover animate-fade-up rounded-[1.75rem] bg-[rgba(255,253,249,0.96)] p-5 shadow-[0_20px_50px_-38px_rgba(120,53,15,0.14)] [animation-delay:220ms]">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">Today at a glance</p>
               <div className="mt-4 space-y-4">
-                <div className="rounded-[1.2rem] bg-slate-50/90 px-4 py-4 dark:bg-gray-950">
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Next task up</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-gray-300">
+                <div className="rounded-[1.2rem] bg-stone-50 px-4 py-4">
+                  <p className="text-sm font-semibold text-stone-900">Next task up</p>
+                  <p className="mt-2 text-sm leading-6 text-stone-600">
                     {dueTodayTasks[0]?.title || overdueTasks[0]?.title || "No urgent task is waiting right now."}
                   </p>
                   {dueTodayTasks[0]?.due_date || overdueTasks[0]?.due_date ? (
-                    <p className="mt-2 text-xs font-medium text-slate-500 dark:text-gray-500">
+                    <p className="mt-2 text-xs font-medium text-stone-500">
                       {formatTaskDate(dueTodayTasks[0]?.due_date || overdueTasks[0]?.due_date)}
                     </p>
                   ) : null}
                 </div>
-                <div className="rounded-[1.2rem] bg-slate-50/90 px-4 py-4 dark:bg-gray-950">
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Focus context</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-gray-300">
+                <div className="rounded-[1.2rem] bg-stone-50 px-4 py-4">
+                  <p className="text-sm font-semibold text-stone-900">Focus context</p>
+                  <p className="mt-2 text-sm leading-6 text-stone-600">
                     {pinnedNote?.title || "Pin one note to make Focus Mode more useful."}
                   </p>
                 </div>
@@ -453,7 +453,7 @@ export function DashboardView({
         title="Start focus"
       >
         <div className="space-y-4">
-          <p className="text-sm leading-6 text-slate-600 dark:text-gray-300">
+          <p className="text-sm leading-6 text-stone-600">
             Think of Focus Mode as a temporary clean room for work. It is helpful when you want less visual noise.
           </p>
           <div className="flex flex-wrap gap-3">

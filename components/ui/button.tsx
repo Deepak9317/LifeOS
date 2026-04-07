@@ -11,11 +11,11 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variantStyles: Record<NonNullable<ButtonProps["variant"]>, string> = {
   primary:
-    "bg-[linear-gradient(135deg,#0f766e,#14b8a6)] text-white shadow-[0_18px_35px_-18px_rgba(20,184,166,0.7)] hover:brightness-105 focus-visible:ring-teal-400",
+    "bg-[linear-gradient(135deg,#d97706,#f59e0b)] text-white shadow-[0_18px_35px_-18px_rgba(217,119,6,0.42)] hover:brightness-105 focus-visible:ring-amber-400",
   secondary:
-    "bg-white/85 text-slate-900 ring-1 ring-slate-200/90 hover:bg-white focus-visible:ring-teal-400 dark:bg-gray-900 dark:text-white dark:ring-gray-800 dark:hover:bg-gray-800",
+    "bg-white/92 text-stone-900 ring-1 ring-amber-100 hover:bg-white focus-visible:ring-amber-400",
   ghost:
-    "bg-transparent text-slate-700 hover:bg-slate-100/85 focus-visible:ring-slate-300 dark:text-gray-300 dark:hover:bg-gray-900",
+    "bg-transparent text-stone-700 hover:bg-amber-50 focus-visible:ring-amber-200",
   danger:
     "bg-rose-600 text-white hover:bg-rose-500 focus-visible:ring-rose-300"
 };

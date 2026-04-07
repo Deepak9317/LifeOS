@@ -25,7 +25,7 @@ export function WorldClockStrip() {
   );
 
   return (
-    <div className="overflow-hidden rounded-[1.5rem] bg-white/72 shadow-[0_20px_60px_-38px_rgba(15,23,42,0.2)] backdrop-blur dark:border dark:border-gray-800 dark:bg-gray-900">
+    <div className="overflow-hidden rounded-[1.5rem] border border-amber-100/70 bg-[rgba(255,253,249,0.82)] shadow-[0_20px_60px_-38px_rgba(120,53,15,0.16)] backdrop-blur">
       <div className="flex gap-3 overflow-x-auto px-3 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {WORLD_TIMEZONES.map((zone) => {
           const isUserZone = zone.timeZone === userTimeZone;
@@ -35,20 +35,20 @@ export function WorldClockStrip() {
               key={zone.key}
               className={`min-w-[156px] rounded-[1.25rem] px-3 py-2.5 shadow-[0_12px_30px_-26px_rgba(15,23,42,0.2)] transition ${
                 isUserZone
-                  ? "bg-[linear-gradient(135deg,rgba(207,250,254,0.98),rgba(220,252,231,0.96))] scale-[1.01] dark:bg-gray-950 dark:[background-image:none]"
-                  : "bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(239,248,245,0.92))] dark:bg-gray-950 dark:[background-image:none]"
+                  ? "bg-[linear-gradient(135deg,rgba(254,243,199,0.98),rgba(204,251,241,0.96))] scale-[1.01]"
+                  : "bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(255,247,237,0.92))]"
               }`}
             >
               <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-semibold tracking-[0.18em] text-slate-500 dark:text-gray-500">{zone.key}</p>
-                <span className="rounded-full bg-slate-950/5 px-2 py-0.5 text-[10px] font-semibold text-slate-600 dark:bg-gray-900 dark:text-gray-500">
+                <p className="text-xs font-semibold tracking-[0.18em] text-stone-500">{zone.key}</p>
+                <span className="rounded-full bg-stone-900 px-2 py-0.5 text-[10px] font-semibold text-stone-100">
                   {zone.offset}
                 </span>
               </div>
-              <p className="mt-2 text-base font-semibold text-slate-900 dark:text-white">
+              <p className="mt-2 text-base font-semibold text-stone-950">
                 {formatTimeInZone(now, zone.timeZone)}
               </p>
-              <p className="text-xs text-slate-500 dark:text-gray-300">
+              <p className="text-xs text-stone-500">
                 {zone.label} - {formatDateInZone(now, zone.timeZone)}
               </p>
               {isUserZone ? (

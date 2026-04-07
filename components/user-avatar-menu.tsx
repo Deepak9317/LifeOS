@@ -63,27 +63,27 @@ export function UserAvatarMenu({ name, email }: UserAvatarMenuProps) {
   return (
     <div className="relative" ref={containerRef}>
       <button
-        className="flex w-full items-center justify-between gap-3 rounded-[1.35rem] bg-white/85 px-3 py-3 text-left shadow-[0_16px_32px_-26px_rgba(15,23,42,0.35)] transition hover:bg-white dark:bg-gray-900 dark:hover:bg-gray-800"
+        className="flex w-full items-center justify-between gap-3 rounded-[1.35rem] bg-white/88 px-3 py-3 text-left shadow-[0_16px_32px_-26px_rgba(120,53,15,0.18)] transition hover:bg-white"
         onClick={() => setOpen((current) => !current)}
         type="button"
       >
         <div className="flex min-w-0 items-center gap-3">
-          <div className="inline-flex size-11 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#0f766e,#14b8a6)] text-sm font-bold text-white shadow-[0_14px_28px_-16px_rgba(20,184,166,0.75)]">
+          <div className="inline-flex size-11 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#f59e0b,#2dd4bf)] text-sm font-bold text-stone-950 shadow-[0_14px_28px_-16px_rgba(217,119,6,0.35)]">
             {initials}
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">{name || "LifeOS member"}</p>
-            <p className="truncate text-xs text-slate-500 dark:text-gray-500">{email}</p>
+            <p className="truncate text-sm font-semibold text-stone-950">{name || "LifeOS member"}</p>
+            <p className="truncate text-xs text-stone-500">{email}</p>
           </div>
         </div>
-        <ChevronDown className={`size-4 text-slate-500 transition dark:text-gray-500 ${open ? "rotate-180" : ""}`} />
+        <ChevronDown className={`size-4 text-stone-500 transition ${open ? "rotate-180" : ""}`} />
       </button>
 
       {open ? (
-        <div className="absolute bottom-[calc(100%+12px)] left-0 z-40 w-full rounded-[1.5rem] border border-white/85 bg-white/96 p-3 shadow-[0_24px_60px_-30px_rgba(15,23,42,0.28)] backdrop-blur dark:border-gray-800 dark:bg-gray-900">
+        <div className="absolute bottom-[calc(100%+12px)] left-0 z-40 w-full rounded-[1.5rem] border border-amber-100/80 bg-[rgba(255,253,249,0.96)] p-3 shadow-[0_24px_60px_-30px_rgba(120,53,15,0.18)] backdrop-blur">
           <div className="space-y-2">
             <Link
-              className="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-950 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
+              className="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-stone-700 transition hover:bg-amber-50 hover:text-stone-950"
               href="/profile"
               onClick={() => setOpen(false)}
             >

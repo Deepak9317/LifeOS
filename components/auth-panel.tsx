@@ -222,44 +222,44 @@ export function AuthPanel({ variant }: { variant: AuthVariant }) {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_500px] lg:items-center">
-      <section className="space-y-6 rounded-[2.25rem] bg-[linear-gradient(135deg,rgba(15,23,42,0.94),rgba(15,118,110,0.92),rgba(8,47,73,0.94))] px-7 py-8 text-white shadow-[0_30px_90px_-42px_rgba(15,23,42,0.45)] sm:px-9">
+      <section className="space-y-6 rounded-[2.25rem] bg-[linear-gradient(135deg,rgba(68,64,60,0.96),rgba(146,64,14,0.92),rgba(13,148,136,0.88))] px-7 py-8 text-white shadow-[0_30px_90px_-42px_rgba(120,53,15,0.3)] sm:px-9">
         <div className="flex items-center justify-between gap-4">
           <Logo />
         </div>
         <div className="space-y-3">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-200">{content.eyebrow}</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-200">{content.eyebrow}</p>
           <h1 className="max-w-xl text-4xl font-bold tracking-tight sm:text-5xl">{content.title}</h1>
           <p className="max-w-xl text-base leading-7 text-slate-100">{content.body}</p>
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="rounded-[1.5rem] bg-white/10 p-4">
-            <ShieldCheck className="size-5 text-cyan-200" />
+            <ShieldCheck className="size-5 text-amber-200" />
             <p className="mt-3 text-sm font-semibold">Secure auth</p>
             <p className="mt-1 text-sm text-slate-200">Email auth, password reset, and session persistence.</p>
           </div>
           <div className="rounded-[1.5rem] bg-white/10 p-4">
-            <UserRound className="size-5 text-cyan-200" />
+            <UserRound className="size-5 text-amber-200" />
             <p className="mt-3 text-sm font-semibold">Profile ready</p>
             <p className="mt-1 text-sm text-slate-200">Name, timezone, joined date, and account settings.</p>
           </div>
           <div className="rounded-[1.5rem] bg-white/10 p-4">
-            <MapPin className="size-5 text-cyan-200" />
+            <MapPin className="size-5 text-amber-200" />
             <p className="mt-3 text-sm font-semibold">Location aware</p>
             <p className="mt-1 text-sm text-slate-200">Timezone and country only. No raw IP stored.</p>
           </div>
         </div>
       </section>
 
-      <Card className="border-white/80 bg-white/94 p-7 shadow-[0_26px_70px_-36px_rgba(15,23,42,0.22)] dark:border-slate-800 dark:bg-slate-950/92 sm:p-8">
+      <Card className="border-amber-100/70 bg-[rgba(255,253,249,0.94)] p-7 shadow-[0_26px_70px_-36px_rgba(120,53,15,0.14)] sm:p-8">
         <div className="space-y-6">
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-slate-950 dark:text-slate-100">
+            <h2 className="text-2xl font-bold text-stone-950">
               {variant === "signin" && "Welcome back"}
               {variant === "signup" && "Create your account"}
               {variant === "forgot-password" && "Forgot password"}
               {variant === "reset-password" && "Reset password"}
             </h2>
-            <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
+            <p className="text-sm leading-6 text-stone-600">
               {variant === "signin" && "Sign in to continue into your dashboard."}
               {variant === "signup" && "Use a strong password and set your display name."}
               {variant === "forgot-password" && "Enter your email and we will send reset instructions."}
@@ -276,7 +276,7 @@ export function AuthPanel({ variant }: { variant: AuthVariant }) {
               }}
             >
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-800 dark:text-slate-200" htmlFor="email">
+                <label className="text-sm font-medium text-stone-700" htmlFor="email">
                   Email
                 </label>
                 <div className="relative">
@@ -285,7 +285,7 @@ export function AuthPanel({ variant }: { variant: AuthVariant }) {
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-800 dark:text-slate-200" htmlFor="password">
+                <label className="text-sm font-medium text-stone-700" htmlFor="password">
                   Password
                 </label>
                 <div className="relative">
@@ -294,10 +294,10 @@ export function AuthPanel({ variant }: { variant: AuthVariant }) {
                 </div>
               </div>
               <div className="flex items-center justify-between gap-4 text-sm">
-                <Link className="font-semibold text-teal-700 hover:text-teal-600 dark:text-teal-300" href="/forgot-password">
+                <Link className="font-semibold text-amber-700 hover:text-amber-600" href="/forgot-password">
                   Forgot password?
                 </Link>
-                <Link className="font-semibold text-slate-700 hover:text-slate-950 dark:text-slate-200" href="/signup">
+                <Link className="font-semibold text-stone-700 hover:text-stone-950" href="/signup">
                   Create account
                 </Link>
               </div>
@@ -317,7 +317,7 @@ export function AuthPanel({ variant }: { variant: AuthVariant }) {
               }}
             >
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-800 dark:text-slate-200" htmlFor="name">
+                <label className="text-sm font-medium text-stone-700" htmlFor="name">
                   Name
                 </label>
                 <div className="relative">
@@ -326,7 +326,7 @@ export function AuthPanel({ variant }: { variant: AuthVariant }) {
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-800 dark:text-slate-200" htmlFor="signup-email">
+                <label className="text-sm font-medium text-stone-700" htmlFor="signup-email">
                   Email
                 </label>
                 <div className="relative">
@@ -335,25 +335,25 @@ export function AuthPanel({ variant }: { variant: AuthVariant }) {
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-800 dark:text-slate-200" htmlFor="signup-password">
+                <label className="text-sm font-medium text-stone-700" htmlFor="signup-password">
                   Password
                 </label>
                 <div className="relative">
                   <Lock className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
                   <Input className="pl-11" id="signup-password" onChange={(event) => setPassword(event.target.value)} type="password" value={password} />
                 </div>
-                <div className="space-y-2 rounded-[1.25rem] bg-slate-50 px-4 py-3 dark:bg-slate-900">
+                <div className="space-y-2 rounded-[1.25rem] bg-amber-50/70 px-4 py-3">
                   <div className="flex items-center justify-between gap-4">
-                    <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Password strength</p>
-                    <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">{passwordStrength.label}</p>
+                    <p className="text-sm font-medium text-stone-700">Password strength</p>
+                    <p className="text-sm font-semibold text-stone-600">{passwordStrength.label}</p>
                   </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+                  <div className="h-2 overflow-hidden rounded-full bg-stone-200">
                     <div className={`h-full rounded-full ${passwordStrength.tone}`} style={{ width: passwordStrength.width }} />
                   </div>
                 </div>
               </div>
               <div className="flex items-center justify-between gap-4 text-sm">
-                <Link className="font-semibold text-slate-700 hover:text-slate-950 dark:text-slate-200" href="/login">
+                <Link className="font-semibold text-stone-700 hover:text-stone-950" href="/login">
                   Already have an account?
                 </Link>
               </div>
@@ -373,7 +373,7 @@ export function AuthPanel({ variant }: { variant: AuthVariant }) {
               }}
             >
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-800 dark:text-slate-200" htmlFor="forgot-email">
+                <label className="text-sm font-medium text-stone-700" htmlFor="forgot-email">
                   Email
                 </label>
                 <div className="relative">
@@ -387,7 +387,7 @@ export function AuthPanel({ variant }: { variant: AuthVariant }) {
                 </div>
               ) : null}
               <div className="flex items-center justify-between gap-4 text-sm">
-                <Link className="font-semibold text-slate-700 hover:text-slate-950 dark:text-slate-200" href="/login">
+                <Link className="font-semibold text-stone-700 hover:text-stone-950" href="/login">
                   Back to sign in
                 </Link>
               </div>
@@ -407,7 +407,7 @@ export function AuthPanel({ variant }: { variant: AuthVariant }) {
               }}
             >
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-800 dark:text-slate-200" htmlFor="reset-password">
+                <label className="text-sm font-medium text-stone-700" htmlFor="reset-password">
                   New password
                 </label>
                 <div className="relative">
@@ -416,7 +416,7 @@ export function AuthPanel({ variant }: { variant: AuthVariant }) {
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-800 dark:text-slate-200" htmlFor="confirm-password">
+                <label className="text-sm font-medium text-stone-700" htmlFor="confirm-password">
                   Confirm password
                 </label>
                 <Input id="confirm-password" onChange={(event) => setConfirmPassword(event.target.value)} type="password" value={confirmPassword} />
