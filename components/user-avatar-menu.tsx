@@ -98,7 +98,7 @@ export function UserAvatarMenu({ name, email, compact = false }: UserAvatarMenuP
               Profile
             </Link>
             <button
-              className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-rose-600 transition hover:bg-rose-50 dark:hover:bg-rose-950/30"
+              className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
               onClick={logout}
               type="button"
             >
