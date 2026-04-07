@@ -8,7 +8,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 import { Logo } from "@/components/logo";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -226,7 +225,6 @@ export function AuthPanel({ variant }: { variant: AuthVariant }) {
       <section className="space-y-6 rounded-[2.25rem] bg-[linear-gradient(135deg,rgba(15,23,42,0.94),rgba(15,118,110,0.92),rgba(8,47,73,0.94))] px-7 py-8 text-white shadow-[0_30px_90px_-42px_rgba(15,23,42,0.45)] sm:px-9">
         <div className="flex items-center justify-between gap-4">
           <Logo />
-          <ThemeToggle compact />
         </div>
         <div className="space-y-3">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-200">{content.eyebrow}</p>

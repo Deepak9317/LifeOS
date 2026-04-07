@@ -7,7 +7,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Logo } from "@/components/logo";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { UserAvatarMenu } from "@/components/user-avatar-menu";
 import { WorldClockStrip } from "@/components/world-clock-strip";
@@ -84,7 +83,6 @@ export function AppShell({
           <div className="flex items-center justify-between rounded-[1.75rem] border border-white/80 bg-white/80 px-4 py-3 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-950">
             <Logo compact />
             <div className="flex items-center gap-2">
-              <ThemeToggle compact />
               <Button onClick={() => setMobileOpen((current) => !current)} size="sm" variant="secondary">
                 {mobileOpen ? <X className="size-4" /> : <Menu className="size-4" />}
               </Button>

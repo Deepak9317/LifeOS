@@ -7,7 +7,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { ThemeToggle } from "@/components/theme-toggle";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type UserAvatarMenuProps = {
@@ -91,9 +90,6 @@ export function UserAvatarMenu({ name, email }: UserAvatarMenuProps) {
               <UserRound className="size-4" />
               Profile
             </Link>
-            <div className="px-3 py-1">
-              <ThemeToggle />
-            </div>
             <button
               className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-rose-600 transition hover:bg-rose-50 dark:hover:bg-rose-950/30"
               onClick={logout}

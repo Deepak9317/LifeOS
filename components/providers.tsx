@@ -1,14 +1,21 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { Toaster } from "sonner";
 
-import { ThemeProvider } from "@/components/theme-provider";
-
 export function Providers({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.remove("dark");
+    delete root.dataset.theme;
+    window.localStorage.removeItem("lifeos-theme");
+  }, []);
+
   return (
-    <ThemeProvider>
+    <>
       {children}
       <Toaster position="top-right" richColors />
-    </ThemeProvider>
+    </>
   );
 }
