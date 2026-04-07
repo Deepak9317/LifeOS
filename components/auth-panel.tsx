@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 
 import { LoaderCircle, Lock, Mail, UserRound } from "lucide-react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 import { Logo } from "@/components/logo";
@@ -43,7 +43,6 @@ async function fetchLocationSnapshot() {
 }
 
 export function AuthPanel({ variant }: { variant: AuthVariant }) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirectedFrom = searchParams.get("redirectedFrom");
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
@@ -72,10 +71,14 @@ export function AuthPanel({ variant }: { variant: AuthVariant }) {
 
   const passwordStrength = getPasswordStrength(password);
 
+  const navigateAfterAuth = (href: string) => {
+    window.location.assign(href);
+  };
+
   const syncProfileLocation = async () => {
     const snapshot = await fetchLocationSnapshot();
 
-    await fetch("/api/profile", {
+    const response = await fetch("/api/profile", {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json"
@@ -86,6 +89,8 @@ export function AuthPanel({ variant }: { variant: AuthVariant }) {
         country_code: snapshot.country_code
       })
     }).catch(() => null);
+
+    return response?.ok ?? false;
   };
 
   const handleSignin = () => {
@@ -104,8 +109,7 @@ export function AuthPanel({ variant }: { variant: AuthVariant }) {
       }
 
       toast.success("Welcome back.");
-      router.replace(redirectedFrom || "/");
-      router.refresh();
+      navigateAfterAuth(redirectedFrom || "/");
     });
   };
 
@@ -138,14 +142,12 @@ export function AuthPanel({ variant }: { variant: AuthVariant }) {
       if (data.session) {
         await syncProfileLocation();
         toast.success("Account created.");
-        router.replace("/");
-        router.refresh();
+        navigateAfterAuth("/");
         return;
       }
 
       toast.success("Account created. Check your email to confirm your account.");
-      router.replace("/login");
-      router.refresh();
+      navigateAfterAuth("/login");
     });
   };
 
@@ -190,8 +192,7 @@ export function AuthPanel({ variant }: { variant: AuthVariant }) {
       }
 
       toast.success("Password updated.");
-      router.replace("/");
-      router.refresh();
+      navigateAfterAuth("/");
     });
   };
 

@@ -4,12 +4,39 @@ import { ApiAuthError, requireApiUser } from "@/lib/auth";
 import { getHiddenClockPagesFromMetadata, mergeProfileWithUserMetadata } from "@/lib/profile-preferences";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { profileSchema } from "@/lib/validation";
-import type { ProfileUpdate } from "@/types";
+import type { Profile, ProfileUpdate } from "@/types";
 
 function isMissingHiddenClockPagesError(message?: string | null) {
   const normalized = (message ?? "").toLowerCase();
 
   return normalized.includes("hidden_clock_pages") && normalized.includes("schema cache");
+}
+
+function buildProfileResponse(user: Awaited<ReturnType<typeof requireApiUser>>, profile: Profile | null, payload: ProfileUpdate) {
+  return mergeProfileWithUserMetadata(
+    profile ?? {
+      id: user.id,
+      email: user.email ?? "",
+      full_name: payload.full_name ?? (typeof user.user_metadata.full_name === "string" ? user.user_metadata.full_name : null),
+      timezone: payload.timezone ?? (typeof user.user_metadata.timezone === "string" ? user.user_metadata.timezone : null),
+      country_code:
+        payload.country_code ?? (typeof user.user_metadata.country_code === "string" ? user.user_metadata.country_code : null),
+      avatar_url: typeof user.user_metadata.avatar_url === "string" ? user.user_metadata.avatar_url : null,
+      hidden_clock_pages: payload.hidden_clock_pages ?? getHiddenClockPagesFromMetadata(user),
+      created_at: user.created_at,
+      updated_at: payload.updated_at ?? new Date().toISOString()
+    },
+    {
+      ...user,
+      user_metadata: {
+        ...user.user_metadata,
+        ...(payload.full_name ? { full_name: payload.full_name } : {}),
+        ...(payload.timezone ? { timezone: payload.timezone } : {}),
+        ...(payload.country_code ? { country_code: payload.country_code } : {}),
+        ...(payload.hidden_clock_pages ? { hidden_clock_pages: payload.hidden_clock_pages } : {})
+      }
+    }
+  );
 }
 
 export async function GET() {
@@ -65,37 +92,30 @@ export async function PATCH(request: Request) {
       payload.hidden_clock_pages = parsed.data.hidden_clock_pages ?? [];
     }
 
-    const fallbackPayload = { ...payload };
-    delete fallbackPayload.hidden_clock_pages;
-
     const supabase = await createSupabaseServerClient();
-
     let profileResponse = await supabase
       .from("profiles")
-      .upsert(
-        {
-          id: user.id,
-          email: user.email ?? "",
-          ...payload
-        },
-        { onConflict: "id" }
-      )
+      .update(payload)
+      .eq("id", user.id)
       .select("*")
-      .single();
+      .maybeSingle();
 
-    if (profileResponse.error && includesHiddenClockPages && isMissingHiddenClockPagesError(profileResponse.error.message)) {
+    if (
+      profileResponse.error &&
+      includesHiddenClockPages &&
+      isMissingHiddenClockPagesError(profileResponse.error.message)
+    ) {
       profileResponse = await supabase
         .from("profiles")
-        .upsert(
-          {
-            id: user.id,
-            email: user.email ?? "",
-            ...fallbackPayload
-          },
-          { onConflict: "id" }
-        )
+        .update({
+          full_name: parsed.data.full_name,
+          timezone: parsed.data.timezone ?? null,
+          country_code: parsed.data.country_code ?? null,
+          updated_at: payload.updated_at
+        })
+        .eq("id", user.id)
         .select("*")
-        .single();
+        .maybeSingle();
     }
 
     if (profileResponse.error) {
@@ -112,14 +132,7 @@ export async function PATCH(request: Request) {
     });
 
     return NextResponse.json({
-      profile: mergeProfileWithUserMetadata(profileResponse.data, {
-        ...user,
-        user_metadata: {
-          ...user.user_metadata,
-          full_name: parsed.data.full_name,
-          ...(includesHiddenClockPages ? { hidden_clock_pages: parsed.data.hidden_clock_pages ?? [] } : {})
-        }
-      })
+      profile: buildProfileResponse(user, profileResponse.data, payload)
     });
   } catch (error) {
     if (error instanceof ApiAuthError) {
