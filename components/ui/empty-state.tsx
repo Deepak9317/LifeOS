@@ -19,13 +19,13 @@ export function EmptyState({
   onAction
 }: EmptyStateProps) {
   return (
-    <Card className="flex min-h-56 flex-col items-center justify-center gap-4 border-dashed bg-slate-50/70 text-center">
+    <Card className="flex min-h-56 flex-col items-center justify-center gap-4 border-dashed bg-slate-50/70 text-center dark:border-gray-800 dark:bg-gray-900">
       <div className="rounded-2xl bg-teal-500/10 p-4 text-teal-700">
         <Icon className="size-7" />
       </div>
       <div className="space-y-1">
-        <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
-        <p className="max-w-sm text-sm text-slate-600">{description}</p>
+        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
+        <p className="max-w-sm text-sm text-slate-600 dark:text-gray-300">{description}</p>
       </div>
       {actionLabel && onAction ? (
         <Button onClick={onAction} size="sm">

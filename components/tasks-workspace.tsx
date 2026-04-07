@@ -90,20 +90,20 @@ export function TasksWorkspace({
 
   return (
     <div className="space-y-8 p-1">
-      <section className="animate-fade-up rounded-[2rem] border border-white/90 bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(236,254,255,0.92)_45%,rgba(240,253,244,0.92))] px-6 py-8 text-slate-950 shadow-[0_24px_70px_-40px_rgba(15,23,42,0.2)]">
+      <section className="animate-fade-up rounded-[2rem] border border-white/90 bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(236,254,255,0.92)_45%,rgba(240,253,244,0.92))] px-6 py-8 text-slate-950 shadow-[0_24px_70px_-40px_rgba(15,23,42,0.2)] dark:border-gray-800 dark:bg-gray-900 dark:text-white">
         <div className="grid gap-5 lg:grid-cols-4">
           <div className="lg:col-span-2">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-700">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-700 dark:text-gray-500">
               Tasks workspace
             </p>
             <h1 className="mt-3 text-4xl font-bold tracking-tight">Tasks</h1>
           </div>
-          <Card className="border-cyan-100 bg-white/75 text-slate-950">
-            <p className="text-sm text-slate-500">Today</p>
+          <Card className="border-cyan-100 bg-white/75 text-slate-950 dark:border-gray-800 dark:bg-gray-950 dark:text-white">
+            <p className="text-sm text-slate-500 dark:text-gray-500">Today</p>
             <p className="mt-4 text-4xl font-bold">{summary.today}</p>
           </Card>
-          <Card className="border-emerald-100 bg-white/75 text-slate-950">
-            <p className="text-sm text-slate-500">Pending</p>
+          <Card className="border-emerald-100 bg-white/75 text-slate-950 dark:border-gray-800 dark:bg-gray-950 dark:text-white">
+            <p className="text-sm text-slate-500 dark:text-gray-500">Pending</p>
             <p className="mt-4 text-4xl font-bold">{summary.pending}</p>
           </Card>
         </div>
@@ -117,10 +117,10 @@ export function TasksWorkspace({
           <Card className="space-y-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-600">
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-600 dark:text-gray-500">
                   Filters
                 </p>
-                <h2 className="mt-2 text-2xl font-bold text-slate-950">Filter tasks</h2>
+                <h2 className="mt-2 text-2xl font-bold text-slate-950 dark:text-white">Filter tasks</h2>
               </div>
               <div className="flex flex-wrap gap-2">
                 {(["today", "pending", "completed"] as FilterKey[]).map((filter) => (
@@ -157,13 +157,13 @@ export function TasksWorkspace({
                     key={task.id}
                     className={`rounded-[1.75rem] border px-5 py-4 transition ${
                       selectedTaskId === task.id
-                        ? "border-teal-300 bg-teal-50/80"
-                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                        ? "border-teal-300 bg-teal-50/80 dark:border-gray-800 dark:bg-gray-800"
+                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-gray-700 dark:hover:bg-gray-800"
                     }`}
                   >
                     <div className="flex items-start gap-4">
                       <button
-                        className="mt-1 inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-slate-300 bg-white"
+                        className="mt-1 inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-slate-300 bg-white dark:border-gray-800 dark:bg-gray-950"
                         onClick={() => void toggleTask(task)}
                         type="button"
                       >
@@ -179,16 +179,16 @@ export function TasksWorkspace({
                         type="button"
                       >
                         <div className="flex flex-wrap items-center gap-2">
-                          <p className="font-semibold text-slate-900">{task.title}</p>
+                          <p className="font-semibold text-slate-900 dark:text-white">{task.title}</p>
                           <span
                             className={`rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${PRIORITY_STYLES[task.priority]}`}
                           >
                             {priorityLabel(task.priority)}
                           </span>
                         </div>
-                        <p className="mt-2 text-sm text-slate-600">{formatTaskDate(task.due_date)}</p>
+                        <p className="mt-2 text-sm text-slate-600 dark:text-gray-500">{formatTaskDate(task.due_date)}</p>
                         {task.description ? (
-                          <p className="mt-2 line-clamp-2 text-sm text-slate-700">{task.description}</p>
+                          <p className="mt-2 line-clamp-2 text-sm text-slate-700 dark:text-gray-300">{task.description}</p>
                         ) : null}
                       </button>
                     </div>

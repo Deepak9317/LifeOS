@@ -27,11 +27,12 @@ body {
 }
 
 html.dark body {
+  color-scheme: dark;
   background:
     radial-gradient(circle at top left, rgba(20, 184, 166, 0.12), transparent 28%),
     radial-gradient(circle at top right, rgba(56, 189, 248, 0.12), transparent 24%),
-    linear-gradient(180deg, #020617, #0f172a 48%, #111827);
-  color: #e2e8f0;
+    linear-gradient(180deg, #030712, #030712 48%, #030712);
+  color: #ffffff;
 }
 
 h1,

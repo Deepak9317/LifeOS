@@ -59,18 +59,18 @@ export function NotesWorkspace({
 
   return (
     <div className="space-y-8 p-1">
-      <section className="rounded-[2rem] bg-slate-950 px-6 py-8 text-white">
+      <section className="rounded-[2rem] bg-slate-950 px-6 py-8 text-white dark:bg-gray-900">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_360px]">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-300">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-300 dark:text-gray-500">
               Notes workspace
             </p>
             <h1 className="mt-3 text-4xl font-bold tracking-tight">Notes</h1>
           </div>
-          <Card className="border-white/10 bg-white/10 text-white">
-            <p className="text-sm text-slate-200">Total notes</p>
+          <Card className="border-white/10 bg-white/10 text-white dark:border-gray-800 dark:bg-gray-950">
+            <p className="text-sm text-slate-200 dark:text-gray-500">Total notes</p>
             <p className="mt-4 text-4xl font-bold">{notes.length}</p>
-            <p className="mt-2 text-sm text-slate-200">Pinned notes surface first inside Focus Mode.</p>
+            <p className="mt-2 text-sm text-slate-200 dark:text-gray-300">Pinned notes surface first inside Focus Mode.</p>
           </Card>
         </div>
       </section>
@@ -83,10 +83,10 @@ export function NotesWorkspace({
           <Card className="space-y-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-600">
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-teal-600 dark:text-gray-500">
                   Search and browse
                 </p>
-                <h2 className="mt-2 text-2xl font-bold text-slate-950">Find notes fast</h2>
+                <h2 className="mt-2 text-2xl font-bold text-slate-950 dark:text-white">Find notes fast</h2>
               </div>
               <Button onClick={() => setSelectedNoteId(null)} size="sm">
                 <SquarePen className="size-4" />
@@ -95,7 +95,7 @@ export function NotesWorkspace({
             </div>
 
             <div className="relative">
-              <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+              <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400 dark:text-gray-500" />
               <Input
                 className="pl-11"
                 onChange={(event) => setQuery(event.target.value)}
@@ -119,8 +119,8 @@ export function NotesWorkspace({
                     key={note.id}
                     className={`w-full rounded-[1.75rem] border px-5 py-4 text-left transition ${
                       selectedNoteId === note.id
-                        ? "border-teal-300 bg-teal-50/80"
-                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                        ? "border-teal-300 bg-teal-50/80 dark:border-gray-800 dark:bg-gray-800"
+                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-gray-700 dark:hover:bg-gray-800"
                     }`}
                     onClick={() => setSelectedNoteId(note.id)}
                     type="button"
@@ -128,7 +128,7 @@ export function NotesWorkspace({
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <p className="font-semibold text-slate-900">{note.title || "Untitled note"}</p>
+                          <p className="font-semibold text-slate-900 dark:text-white">{note.title || "Untitled note"}</p>
                           {isPinnedNote(note) ? (
                             <Badge className="bg-amber-400/15 text-amber-700 ring-amber-400/20">
                               <Pin className="mr-1 size-3.5" />
@@ -136,8 +136,8 @@ export function NotesWorkspace({
                             </Badge>
                           ) : null}
                         </div>
-                        <p className="mt-2 text-sm text-slate-600">{formatFullDate(note.created_at)}</p>
-                        <p className="mt-3 line-clamp-3 text-sm text-slate-700">
+                        <p className="mt-2 text-sm text-slate-600 dark:text-gray-500">{formatFullDate(note.created_at)}</p>
+                        <p className="mt-3 line-clamp-3 text-sm text-slate-700 dark:text-gray-300">
                           {note.content || "No content yet."}
                         </p>
                         {(note.tags ?? []).length > 0 ? (
@@ -145,7 +145,7 @@ export function NotesWorkspace({
                             {(note.tags ?? []).map((tag) => (
                               <Badge
                                 key={tag}
-                                className="bg-slate-950/5 text-slate-700 ring-slate-950/10"
+                                className="bg-slate-950/5 text-slate-700 ring-slate-950/10 dark:bg-gray-950 dark:text-gray-300 dark:ring-gray-800"
                               >
                                 {tag}
                               </Badge>
