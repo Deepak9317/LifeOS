@@ -8,6 +8,7 @@ import {
   CircleAlert,
   Clock3,
   Focus,
+  Lightbulb,
   NotebookPen,
   PlusCircle,
   Sparkles
@@ -20,7 +21,15 @@ import { TaskForm } from "@/components/task-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Modal } from "@/components/ui/modal";
-import { isPinnedNote, safeDate, sortNotes, sortTasks, summarizeTaskState } from "@/lib/utils";
+import {
+  formatFullDate,
+  formatTaskDate,
+  isPinnedNote,
+  safeDate,
+  sortNotes,
+  sortTasks,
+  summarizeTaskState
+} from "@/lib/utils";
 import type { Note, SetupIssue, Task } from "@/types";
 
 type DashboardViewProps = {
@@ -30,6 +39,14 @@ type DashboardViewProps = {
 };
 
 type QuickAction = "task" | "note" | "focus" | null;
+
+type ActivityItem = {
+  id: string;
+  label: string;
+  detail: string;
+  date: string;
+  href: string;
+};
 
 function estimateFocusMinutes(tasks: Task[]) {
   return tasks.filter((task) => task.completed).length * 25;
@@ -43,6 +60,10 @@ function formatMinutes(totalMinutes: number) {
   }
 
   return `${totalMinutes}m`;
+}
+
+function clampPercent(value: number) {
+  return Math.max(0, Math.min(100, value));
 }
 
 export function DashboardView({
@@ -63,18 +84,71 @@ export function DashboardView({
   }, [initialNotes]);
 
   const summary = summarizeTaskState(tasks);
-  const overdueCount = useMemo(
+  const overdueTasks = useMemo(
     () =>
       tasks.filter((task) => {
         const dueDate = safeDate(task.due_date);
         return !task.completed && dueDate ? dueDate.getTime() < Date.now() : false;
-      }).length,
+      }),
     [tasks]
   );
+  const overdueCount = overdueTasks.length;
   const focusMinutes = estimateFocusMinutes(tasks);
   const todayName = new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(new Date());
   const latestNote = notes[0] ?? null;
   const pinnedNote = notes.find(isPinnedNote) ?? null;
+  const dueTodayTasks = tasks.filter((task) => {
+    const dueDate = safeDate(task.due_date);
+    if (!dueDate || task.completed) {
+      return false;
+    }
+
+    const now = new Date();
+    return dueDate.toDateString() === now.toDateString();
+  });
+
+  const completionRate = clampPercent(summary.total ? (summary.completed / summary.total) * 100 : 0);
+  const focusScore = clampPercent((focusMinutes / 180) * 100);
+  const notesCoverage = clampPercent(notes.length * 12);
+  const urgencyScore = clampPercent(overdueCount * 25 + dueTodayTasks.length * 18);
+
+  const dynamicSummary =
+    overdueCount > 0
+      ? `${overdueCount} overdue item${overdueCount === 1 ? "" : "s"} need attention before the day gets noisy.`
+      : dueTodayTasks.length > 0
+        ? `${dueTodayTasks.length} priority item${dueTodayTasks.length === 1 ? "" : "s"} are lined up for today.`
+        : "Your dashboard is quiet right now, which is a good moment to plan ahead.";
+
+  const recommendations = [
+    overdueCount > 0
+      ? {
+          title: "Clear the oldest overdue task",
+          detail: overdueTasks[0]?.title || "Open Tasks and close one overdue item first.",
+          href: "/tasks"
+        }
+      : null,
+    !pinnedNote
+      ? {
+          title: "Pin one note for context",
+          detail: "Make Focus Mode more useful by pinning the note you keep returning to.",
+          href: "/notes"
+        }
+      : null,
+    dueTodayTasks.length === 0
+      ? {
+          title: "Add one meaningful task for today",
+          detail: "A light plan works better than an empty day when priorities shift.",
+          href: "/tasks"
+        }
+      : null,
+    latestNote
+      ? {
+          title: "Review your latest note",
+          detail: latestNote.title || "There is a recent idea waiting for a follow-up.",
+          href: "/notes"
+        }
+      : null
+  ].filter(Boolean).slice(0, 3) as Array<{ title: string; detail: string; href: string }>;
 
   const featureCards = [
     {
@@ -84,6 +158,7 @@ export function DashboardView({
           ? `${summary.today} task${summary.today === 1 ? "" : "s"} due today`
           : "No tasks due today",
       description: overdueCount > 0 ? `${overdueCount} overdue need attention` : "Your task board is under control",
+      preview: dueTodayTasks[0]?.title || overdueTasks[0]?.title || "Nothing urgent is waiting right now.",
       href: "/tasks",
       cta: "View tasks",
       icon: CheckSquare
@@ -92,6 +167,7 @@ export function DashboardView({
       title: "Notes",
       summary: `${notes.length} note${notes.length === 1 ? "" : "s"} captured`,
       description: latestNote?.title || "Open Notes to capture ideas and decisions",
+      preview: latestNote?.content || "Your note workspace is ready for quick capture.",
       href: "/notes",
       cta: "Open notes",
       icon: NotebookPen
@@ -100,6 +176,9 @@ export function DashboardView({
       title: "Focus",
       summary: pinnedNote ? "Pinned note ready for focus" : "Start a distraction-light session",
       description: pinnedNote?.title || "Use Focus when you want only today’s work and one note",
+      preview:
+        pinnedNote?.content ||
+        "Focus Mode stays intentionally minimal. It is optional, but helpful when you want a clean sprint view.",
       href: "/focus",
       cta: "Start focus",
       icon: Focus
@@ -108,44 +187,124 @@ export function DashboardView({
       title: "Time",
       summary: "Calendar, clocks, and timezone tools",
       description: "Check schedules, world clocks, and convert across timezones",
+      preview: "Keep timing decisions in one place without crowding the dashboard.",
       href: "/time",
       cta: "Open time",
       icon: Clock3
     }
   ] as const;
 
+  const recentActivity = useMemo(() => {
+    const taskItems: ActivityItem[] = tasks.slice(0, 4).map((task) => ({
+      id: `task-${task.id}`,
+      label: task.completed ? "Completed task" : "Task updated",
+      detail: task.title,
+      date: task.created_at,
+      href: "/tasks"
+    }));
+
+    const noteItems: ActivityItem[] = notes.slice(0, 4).map((note) => ({
+      id: `note-${note.id}`,
+      label: isPinnedNote(note) ? "Pinned note" : "Saved note",
+      detail: note.title || "Untitled note",
+      date: note.created_at,
+      href: "/notes"
+    }));
+
+    return [...taskItems, ...noteItems]
+      .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime())
+      .slice(0, 6);
+  }, [notes, tasks]);
+
+  const stats = [
+    {
+      label: "Tasks today",
+      value: summary.today,
+      meta: `${completionRate}% complete`,
+      percent: completionRate,
+      tone: "from-cyan-500 to-sky-500"
+    },
+    {
+      label: "Overdue",
+      value: overdueCount,
+      meta: overdueCount > 0 ? "Needs attention" : "All clear",
+      percent: urgencyScore,
+      tone: "from-amber-400 to-rose-400"
+    },
+    {
+      label: "Notes count",
+      value: notes.length,
+      meta: latestNote ? "Fresh context available" : "Start capturing ideas",
+      percent: notesCoverage,
+      tone: "from-violet-500 to-fuchsia-500"
+    },
+    {
+      label: "Focus time",
+      value: formatMinutes(focusMinutes),
+      meta: pinnedNote ? "Pinned note ready" : "Add a pinned note",
+      percent: focusScore,
+      tone: "from-emerald-500 to-teal-500"
+    }
+  ] as const;
+
   return (
     <div className="space-y-6 p-1">
-      <section className="animate-fade-up rounded-[2rem] border border-white/90 bg-[linear-gradient(135deg,rgba(255,255,255,0.97),rgba(239,248,245,0.94),rgba(240,249,255,0.92))] px-6 py-8 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.22)]">
-        <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full bg-slate-950/5 px-3 py-1.5 text-sm font-semibold text-slate-700 ring-1 ring-slate-950/5">
-            <Sparkles className="size-4 text-teal-600" />
-            LifeOS control center
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-teal-700">{todayName}</p>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-              Good day. Here is what matters now.
-            </h1>
-            <p className="max-w-3xl text-sm leading-6 text-slate-600 sm:text-base">
-              The dashboard is now just a launch point: quick actions, brief stats, and feature shortcuts.
-            </p>
+      <section className="animate-fade-up rounded-[2rem] bg-[linear-gradient(135deg,rgba(255,255,255,0.97),rgba(239,248,245,0.94),rgba(240,249,255,0.92))] px-6 py-8 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.22)] sm:px-8">
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.3fr)_360px]">
+          <div className="space-y-4">
+            <div className="inline-flex items-center gap-2 rounded-full bg-slate-950/5 px-3 py-1.5 text-sm font-semibold text-slate-700">
+              <Sparkles className="size-4 text-teal-600" />
+              LifeOS control center
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-teal-700">{todayName}</p>
+              <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+                Good day. Here is what matters now.
+              </h1>
+              <p className="max-w-3xl text-sm leading-6 text-slate-600 sm:text-base">{dynamicSummary}</p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Button onClick={() => setQuickAction("task")}>
+                <PlusCircle className="size-4" />
+                Add Task
+              </Button>
+              <Button onClick={() => setQuickAction("note")} variant="secondary">
+                <PlusCircle className="size-4" />
+                Add Note
+              </Button>
+              <Button onClick={() => setQuickAction("focus")} variant="secondary">
+                <Focus className="size-4" />
+                Start Focus
+              </Button>
+            </div>
           </div>
 
-          <div className="flex flex-wrap gap-3">
-            <Button onClick={() => setQuickAction("task")}>
-              <PlusCircle className="size-4" />
-              Add Task
-            </Button>
-            <Button onClick={() => setQuickAction("note")} variant="secondary">
-              <PlusCircle className="size-4" />
-              Add Note
-            </Button>
-            <Button onClick={() => setQuickAction("focus")} variant="secondary">
-              <Focus className="size-4" />
-              Start Focus
-            </Button>
-          </div>
+          <Card className="animate-fade-up rounded-[1.75rem] bg-white/78 p-5 shadow-[0_18px_50px_-36px_rgba(15,23,42,0.22)] [animation-delay:50ms]">
+            <div className="flex items-start gap-3">
+              <div className="inline-flex size-10 items-center justify-center rounded-[1rem] bg-amber-400/15 text-amber-700">
+                <Lightbulb className="size-5" />
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Recommended</p>
+                  <h2 className="mt-1 text-xl font-bold text-slate-950">Smart suggestions</h2>
+                </div>
+                <div className="space-y-2">
+                  {recommendations.map((item) => (
+                    <Link
+                      key={item.title}
+                      className="block rounded-[1.2rem] bg-white/90 px-4 py-3 transition hover:scale-[1.01] hover:shadow-[0_14px_30px_-22px_rgba(15,23,42,0.28)]"
+                      href={item.href}
+                    >
+                      <p className="text-sm font-semibold text-slate-900">{item.title}</p>
+                      <p className="mt-1 text-sm leading-6 text-slate-600">{item.detail}</p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Card>
         </div>
       </section>
 
@@ -154,25 +313,22 @@ export function DashboardView({
       {setupIssue ? null : (
         <>
           <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <Card className="card-hover animate-fade-up rounded-[1.75rem] bg-white/90 [animation-delay:0ms]">
-              <p className="text-sm text-slate-500">Tasks today</p>
-              <p className="mt-3 text-3xl font-bold text-slate-950">{summary.today}</p>
-            </Card>
-            <Card className="card-hover animate-fade-up rounded-[1.75rem] bg-white/90 [animation-delay:40ms]">
-              <div className="flex items-center gap-2 text-slate-500">
-                <CircleAlert className="size-4 text-amber-600" />
-                <p className="text-sm">Overdue</p>
-              </div>
-              <p className="mt-3 text-3xl font-bold text-slate-950">{overdueCount}</p>
-            </Card>
-            <Card className="card-hover animate-fade-up rounded-[1.75rem] bg-white/90 [animation-delay:80ms]">
-              <p className="text-sm text-slate-500">Notes count</p>
-              <p className="mt-3 text-3xl font-bold text-slate-950">{notes.length}</p>
-            </Card>
-            <Card className="card-hover animate-fade-up rounded-[1.75rem] bg-white/90 [animation-delay:120ms]">
-              <p className="text-sm text-slate-500">Focus time</p>
-              <p className="mt-3 text-3xl font-bold text-slate-950">{formatMinutes(focusMinutes)}</p>
-            </Card>
+            {stats.map((stat, index) => (
+              <Card
+                key={stat.label}
+                className={`card-hover animate-fade-up rounded-[1.75rem] bg-white/90 p-5 shadow-[0_20px_50px_-38px_rgba(15,23,42,0.18)] [animation-delay:${index * 40}ms]`}
+              >
+                <p className="text-sm text-slate-500">{stat.label}</p>
+                <p className="mt-3 text-3xl font-bold text-slate-950">{stat.value}</p>
+                <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
+                  <div
+                    className={`h-full rounded-full bg-gradient-to-r ${stat.tone}`}
+                    style={{ width: `${stat.percent}%` }}
+                  />
+                </div>
+                <p className="mt-3 text-sm text-slate-600">{stat.meta}</p>
+              </Card>
+            ))}
           </section>
 
           <section className="grid gap-4 xl:grid-cols-2">
@@ -180,32 +336,82 @@ export function DashboardView({
               const Icon = card.icon;
 
               return (
-                <Card
-                  key={card.title}
-                  className={`card-hover animate-fade-up rounded-[1.75rem] border-white/80 bg-white/92 [animation-delay:${index * 40}ms]`}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-2">
-                      <div className="inline-flex size-11 items-center justify-center rounded-[1rem] bg-slate-950/5 text-slate-700">
-                        <Icon className="size-5" />
+                <Link key={card.title} className="block" href={card.href}>
+                  <Card
+                    className={`card-hover animate-fade-up rounded-[1.75rem] bg-white/92 p-5 shadow-[0_20px_50px_-38px_rgba(15,23,42,0.2)] [animation-delay:${index * 40}ms]`}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0 space-y-3">
+                        <div className="inline-flex size-11 items-center justify-center rounded-[1rem] bg-slate-950/5 text-slate-700">
+                          <Icon className="size-5" />
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold text-slate-950">{card.title}</h2>
+                          <p className="mt-2 text-sm font-medium text-slate-800">{card.summary}</p>
+                          <p className="mt-1 text-sm leading-6 text-slate-600">{card.description}</p>
+                        </div>
+                        <div className="rounded-[1.1rem] bg-slate-50/90 px-4 py-3">
+                          <p className="line-clamp-2 text-sm leading-6 text-slate-600">{card.preview}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h2 className="text-xl font-bold text-slate-950">{card.title}</h2>
-                        <p className="mt-2 text-sm font-medium text-slate-800">{card.summary}</p>
-                        <p className="mt-1 text-sm leading-6 text-slate-600">{card.description}</p>
-                      </div>
+                      <span className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-900 transition group-hover:bg-slate-50">
+                        {card.cta}
+                        <ArrowRight className="size-4" />
+                      </span>
                     </div>
-                    <Link
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
-                      href={card.href}
-                    >
-                      {card.cta}
-                      <ArrowRight className="size-4" />
-                    </Link>
-                  </div>
-                </Card>
+                  </Card>
+                </Link>
               );
             })}
+          </section>
+
+          <section className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
+            <Card className="card-hover animate-fade-up rounded-[1.75rem] bg-white/92 p-5 shadow-[0_20px_50px_-38px_rgba(15,23,42,0.18)] [animation-delay:180ms]">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Recent activity</p>
+                  <h2 className="mt-1 text-xl font-bold text-slate-950">Latest from your workspace</h2>
+                </div>
+              </div>
+              <div className="mt-5 space-y-3">
+                {recentActivity.map((item) => (
+                  <Link
+                    key={item.id}
+                    className="flex items-start justify-between gap-4 rounded-[1.2rem] bg-slate-50/80 px-4 py-3 transition hover:scale-[1.01] hover:shadow-[0_16px_32px_-26px_rgba(15,23,42,0.22)]"
+                    href={item.href}
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-slate-900">{item.label}</p>
+                      <p className="mt-1 truncate text-sm text-slate-600">{item.detail}</p>
+                    </div>
+                    <p className="shrink-0 text-xs font-medium text-slate-500">{formatFullDate(item.date)}</p>
+                  </Link>
+                ))}
+              </div>
+            </Card>
+
+            <Card className="card-hover animate-fade-up rounded-[1.75rem] bg-white/92 p-5 shadow-[0_20px_50px_-38px_rgba(15,23,42,0.18)] [animation-delay:220ms]">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Today at a glance</p>
+              <div className="mt-4 space-y-4">
+                <div className="rounded-[1.2rem] bg-slate-50/90 px-4 py-4">
+                  <p className="text-sm font-semibold text-slate-900">Next task up</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    {dueTodayTasks[0]?.title || overdueTasks[0]?.title || "No urgent task is waiting right now."}
+                  </p>
+                  {dueTodayTasks[0]?.due_date || overdueTasks[0]?.due_date ? (
+                    <p className="mt-2 text-xs font-medium text-slate-500">
+                      {formatTaskDate(dueTodayTasks[0]?.due_date || overdueTasks[0]?.due_date)}
+                    </p>
+                  ) : null}
+                </div>
+                <div className="rounded-[1.2rem] bg-slate-50/90 px-4 py-4">
+                  <p className="text-sm font-semibold text-slate-900">Focus context</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    {pinnedNote?.title || "Pin one note to make Focus Mode more useful."}
+                  </p>
+                </div>
+              </div>
+            </Card>
           </section>
         </>
       )}
@@ -241,14 +447,14 @@ export function DashboardView({
       </Modal>
 
       <Modal
-        description="Focus Mode is useful when you want a stripped-down view with only today’s tasks and one pinned note."
+        description="Focus Mode stays minimal and optional. Use it when you want only today’s tasks and one pinned note."
         onClose={() => setQuickAction(null)}
         open={quickAction === "focus"}
         title="Start focus"
       >
         <div className="space-y-4">
           <p className="text-sm leading-6 text-slate-600">
-            It is optional. Think of it as a distraction-light session, not a required part of the product.
+            Think of Focus Mode as a temporary clean room for work. It is helpful when you want less visual noise.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
