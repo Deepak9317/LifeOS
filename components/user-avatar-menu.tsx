@@ -85,7 +85,7 @@ export function UserAvatarMenu({ name, email, compact = false }: UserAvatarMenuP
       {open ? (
         <div
           className={`absolute z-40 rounded-[1.5rem] border border-amber-100/80 bg-[rgba(255,253,249,0.96)] p-3 shadow-[0_24px_60px_-30px_rgba(120,53,15,0.18)] backdrop-blur ${
-            compact ? "bottom-[calc(100%+12px)] left-0 w-64" : "bottom-[calc(100%+12px)] left-0 w-full"
+            compact ? "left-0 top-[calc(100%+12px)] w-64" : "left-0 top-[calc(100%+12px)] w-full"
           }`}
         >
           <div className="space-y-2">

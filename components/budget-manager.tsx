@@ -195,6 +195,16 @@ export function BudgetManager({
     setEntryEditorOpen(true);
   };
 
+  const openNewEntry = () => {
+    setEditorEntry(null);
+    setEditTitle("");
+    setEditAmount("");
+    setEditType("expense");
+    setEditCategory("other");
+    setEditDate(new Date().toISOString().slice(0, 10));
+    setEntryEditorOpen(true);
+  };
+
   const submitQuickEntry = async () => {
     const parsed = parseQuickEntry(quickEntry);
 
@@ -246,13 +256,9 @@ export function BudgetManager({
   };
 
   const saveEntry = async () => {
-    if (!editorEntry) {
-      return;
-    }
-
     try {
-      const response = await fetch(`/api/budget/${editorEntry.id}`, {
-        method: "PATCH",
+      const response = await fetch(editorEntry ? `/api/budget/${editorEntry.id}` : "/api/budget", {
+        method: editorEntry ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: editTitle,
@@ -264,11 +270,15 @@ export function BudgetManager({
       });
 
       const data = await readJson<{ entry: BudgetEntry }>(response);
-      setEntries((current) => current.map((entry) => (entry.id === data.entry.id ? data.entry : entry)));
+      setEntries((current) =>
+        editorEntry
+          ? current.map((entry) => (entry.id === data.entry.id ? data.entry : entry))
+          : [data.entry, ...current]
+      );
       setEntryEditorOpen(false);
-      toast.success("Budget entry updated.");
+      toast.success(editorEntry ? "Budget entry updated." : "Budget entry created.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to update budget entry.");
+      toast.error(error instanceof Error ? error.message : "Unable to save budget entry.");
     }
   };
 
@@ -300,10 +310,16 @@ export function BudgetManager({
                 Add an entry in one line and know instantly whether the month is safe or overspending.
               </p>
             </div>
-            <Button onClick={() => setSettingsOpen(true)} size="sm" variant="secondary">
-              <Pencil className="size-4" />
-              Budget settings
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={openNewEntry} size="sm" variant="secondary">
+                <PlusCircle className="size-4" />
+                Add entry
+              </Button>
+              <Button onClick={() => setSettingsOpen(true)} size="sm" variant="secondary">
+                <Pencil className="size-4" />
+                Budget settings
+              </Button>
+            </div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -506,10 +522,10 @@ export function BudgetManager({
 
       <Modal
         className="max-w-lg"
-        description="Update or delete this budget entry."
+        description={editorEntry ? "Update or delete this budget entry." : "Add a detailed budget entry."}
         onClose={() => setEntryEditorOpen(false)}
         open={entryEditorOpen}
-        title="Edit budget entry"
+        title={editorEntry ? "Edit budget entry" : "New budget entry"}
       >
         <div className="space-y-4">
           <div className="space-y-2">
@@ -546,11 +562,13 @@ export function BudgetManager({
             </div>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Button onClick={saveEntry}>Save changes</Button>
-            <Button onClick={deleteEntry} variant="danger">
-              <TrendingDown className="size-4" />
-              Delete
-            </Button>
+            <Button onClick={saveEntry}>{editorEntry ? "Save changes" : "Create entry"}</Button>
+            {editorEntry ? (
+              <Button onClick={deleteEntry} variant="danger">
+                <TrendingDown className="size-4" />
+                Delete
+              </Button>
+            ) : null}
             <Button onClick={() => setEntryEditorOpen(false)} variant="secondary">
               Cancel
             </Button>

@@ -45,15 +45,20 @@ const companyLinks = [
 
 export function AppShell({
   children,
+  isAdmin = false,
   userEmail,
   profileName
 }: {
   children: React.ReactNode;
+  isAdmin?: boolean;
   userEmail: string;
   profileName?: string | null;
 }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const primaryNavigation = isAdmin
+    ? [...navigation, { href: "/admin", label: "Admin", icon: Shield }]
+    : navigation;
 
   return (
     <div className="min-h-screen">
@@ -63,7 +68,7 @@ export function AppShell({
             <Logo compact={false} />
 
             <nav className="hidden min-w-0 flex-1 items-center justify-center gap-2 xl:flex">
-              {navigation.map((item) => {
+              {primaryNavigation.map((item) => {
                 const Icon = item.icon;
                 const active = pathname === item.href;
 
@@ -113,7 +118,7 @@ export function AppShell({
                 </Button>
               </div>
               <nav className="mt-6 space-y-2">
-                {navigation.map((item) => {
+                {primaryNavigation.map((item) => {
                   const Icon = item.icon;
                   const active = pathname === item.href;
 

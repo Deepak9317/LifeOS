@@ -1,5 +1,5 @@
 import { AppShell } from "@/components/app-shell";
-import { requireUser } from "@/lib/auth";
+import { isAdminEmail, requireUser } from "@/lib/auth";
 import { getCurrentProfile } from "@/lib/profile";
 
 export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
@@ -8,6 +8,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
 
   return (
     <AppShell
+      isAdmin={isAdminEmail(user.email)}
       profileName={profile?.full_name ?? null}
       userEmail={user.email ?? "Authenticated user"}
     >
