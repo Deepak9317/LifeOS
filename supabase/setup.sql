@@ -41,6 +41,7 @@ create table if not exists public.profiles (
   timezone text,
   country_code text,
   avatar_url text,
+  hidden_clock_pages text[] not null default '{}',
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
@@ -86,6 +87,7 @@ alter table public.profiles add column if not exists full_name text;
 alter table public.profiles add column if not exists timezone text;
 alter table public.profiles add column if not exists country_code text;
 alter table public.profiles add column if not exists avatar_url text;
+alter table public.profiles add column if not exists hidden_clock_pages text[] default '{}';
 alter table public.profiles add column if not exists created_at timestamptz default timezone('utc', now());
 alter table public.profiles add column if not exists updated_at timestamptz default timezone('utc', now());
 alter table public.budget_entries add column if not exists id uuid default gen_random_uuid();
@@ -199,6 +201,7 @@ update public.notes set tags = '{}'::text[] where tags is null;
 update public.notes set created_at = timezone('utc', now()) where created_at is null;
 update public.profiles set created_at = timezone('utc', now()) where created_at is null;
 update public.profiles set updated_at = timezone('utc', now()) where updated_at is null;
+update public.profiles set hidden_clock_pages = '{}'::text[] where hidden_clock_pages is null;
 update public.budget_entries set amount = 0 where amount is null;
 update public.budget_entries set category = 'other' where category is null;
 update public.budget_entries set entry_date = current_date where entry_date is null;
@@ -217,6 +220,7 @@ alter table public.notes alter column tags set default '{}';
 alter table public.notes alter column created_at set default timezone('utc', now());
 alter table public.profiles alter column created_at set default timezone('utc', now());
 alter table public.profiles alter column updated_at set default timezone('utc', now());
+alter table public.profiles alter column hidden_clock_pages set default '{}';
 alter table public.budget_entries alter column id set default gen_random_uuid();
 alter table public.budget_entries alter column type set default 'expense';
 alter table public.budget_entries alter column category set default 'other';
@@ -353,6 +357,7 @@ alter table public.notes alter column tags set not null;
 alter table public.notes alter column created_at set not null;
 alter table public.profiles alter column id set not null;
 alter table public.profiles alter column email set not null;
+alter table public.profiles alter column hidden_clock_pages set not null;
 alter table public.profiles alter column created_at set not null;
 alter table public.profiles alter column updated_at set not null;
 alter table public.budget_entries alter column user_id set not null;

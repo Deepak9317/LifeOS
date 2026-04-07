@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 
 import type { User } from "@supabase/supabase-js";
-import { LoaderCircle, LockKeyhole, MapPinned, Save, ShieldCheck, UserRound } from "lucide-react";
+import { Clock3, LoaderCircle, LockKeyhole, MapPinned, Save, ShieldCheck, UserRound } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -20,10 +20,22 @@ export function ProfileWorkspace({
   user: User;
   profile: Profile | null;
 }) {
+  const CLOCK_PAGE_OPTIONS = [
+    { value: "/", label: "Dashboard" },
+    { value: "/tasks", label: "Tasks" },
+    { value: "/notes", label: "Notes" },
+    { value: "/time", label: "Time" },
+    { value: "/budget", label: "Budget" },
+    { value: "/focus", label: "Focus" },
+    { value: "/profile", label: "Profile" },
+    { value: "/admin", label: "Admin" }
+  ] as const;
+
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [fullName, setFullName] = useState(profile?.full_name ?? user.user_metadata.full_name ?? "");
   const [timezone, setTimezone] = useState(profile?.timezone ?? "");
   const [countryCode, setCountryCode] = useState(profile?.country_code ?? "");
+  const [hiddenClockPages, setHiddenClockPages] = useState<string[]>(profile?.hidden_clock_pages ?? []);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -51,7 +63,8 @@ export function ProfileWorkspace({
     const parsed = profileSchema.safeParse({
       full_name: fullName,
       timezone: timezone || null,
-      country_code: countryCode || null
+      country_code: countryCode || null,
+      hidden_clock_pages: hiddenClockPages
     });
 
     if (!parsed.success) {
@@ -176,6 +189,49 @@ export function ProfileWorkspace({
         </Card>
 
         <div className="space-y-6">
+          <Card className="space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="inline-flex size-12 items-center justify-center rounded-[1.1rem] bg-amber-50 text-amber-700">
+                <Clock3 className="size-5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">Display</p>
+                <h2 className="text-2xl font-bold text-stone-950">Clock strip visibility</h2>
+              </div>
+            </div>
+
+            <p className="text-sm leading-6 text-stone-600">
+              Choose the pages where the top world clock strip should stay hidden.
+            </p>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {CLOCK_PAGE_OPTIONS.map((option) => {
+                const checked = hiddenClockPages.includes(option.value);
+
+                return (
+                  <label
+                    key={option.value}
+                    className="flex items-center gap-3 rounded-[1.25rem] border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800"
+                  >
+                    <input
+                      checked={checked}
+                      className="size-4 rounded border-slate-300 text-teal-500 focus:ring-teal-500"
+                      onChange={(event) => {
+                        setHiddenClockPages((current) =>
+                          event.target.checked
+                            ? [...current, option.value]
+                            : current.filter((value) => value !== option.value)
+                        );
+                      }}
+                      type="checkbox"
+                    />
+                    Hide on {option.label}
+                  </label>
+                );
+              })}
+            </div>
+          </Card>
+
           <Card className="space-y-5">
             <div className="flex items-center gap-3">
               <div className="inline-flex size-12 items-center justify-center rounded-[1.1rem] bg-amber-50 text-amber-700">

@@ -45,11 +45,13 @@ const companyLinks = [
 
 export function AppShell({
   children,
+  hiddenClockPages = [],
   isAdmin = false,
   userEmail,
   profileName
 }: {
   children: React.ReactNode;
+  hiddenClockPages?: string[] | null;
   isAdmin?: boolean;
   userEmail: string;
   profileName?: string | null;
@@ -59,11 +61,12 @@ export function AppShell({
   const primaryNavigation = isAdmin
     ? [...navigation, { href: "/admin", label: "Admin", icon: Shield }]
     : navigation;
+  const shouldHideClockStrip = (hiddenClockPages ?? []).includes(pathname);
 
   return (
     <div className="min-h-screen">
       <div className="mx-auto flex min-h-screen w-full max-w-[1680px] flex-col gap-5 px-4 py-4 sm:px-6">
-        <header className="rounded-[2rem] border border-amber-100/70 bg-[rgba(255,252,247,0.86)] px-4 py-4 shadow-[0_24px_70px_-42px_rgba(120,53,15,0.16)] backdrop-blur sm:px-5">
+        <header className="relative z-30 rounded-[2rem] border border-amber-100/70 bg-[rgba(255,252,247,0.86)] px-4 py-4 shadow-[0_24px_70px_-42px_rgba(120,53,15,0.16)] backdrop-blur sm:px-5">
           <div className="flex items-center justify-between gap-4">
             <Logo compact={false} />
 
@@ -173,7 +176,7 @@ export function AppShell({
           </>
         ) : null}
 
-        <WorldClockStrip />
+        {shouldHideClockStrip ? null : <WorldClockStrip />}
 
         <main className="min-w-0 flex-1 rounded-[2rem]">{children}</main>
 

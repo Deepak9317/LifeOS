@@ -49,6 +49,7 @@ export async function PATCH(request: Request) {
       full_name: parsed.data.full_name,
       timezone: parsed.data.timezone ?? null,
       country_code: parsed.data.country_code ?? null,
+      hidden_clock_pages: parsed.data.hidden_clock_pages ?? [],
       updated_at: new Date().toISOString()
     };
 

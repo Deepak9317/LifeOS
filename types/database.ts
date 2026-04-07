@@ -27,6 +27,7 @@ export type Profile = {
   timezone: string | null;
   country_code: string | null;
   avatar_url: string | null;
+  hidden_clock_pages: string[] | null;
   created_at: string;
   updated_at: string;
 };
@@ -83,6 +84,7 @@ export type ProfileInsert = {
   timezone?: string | null;
   country_code?: string | null;
   avatar_url?: string | null;
+  hidden_clock_pages?: string[] | null;
   created_at?: string;
   updated_at?: string;
 };

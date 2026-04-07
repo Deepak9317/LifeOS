@@ -25,7 +25,7 @@ export function WorldClockStrip() {
   );
 
   return (
-    <div className="overflow-hidden rounded-[1.5rem] border border-amber-100/70 bg-[rgba(255,253,249,0.82)] shadow-[0_20px_60px_-38px_rgba(120,53,15,0.16)] backdrop-blur">
+    <div className="relative z-0 overflow-hidden rounded-[1.5rem] border border-amber-100/70 bg-[rgba(255,253,249,0.82)] shadow-[0_20px_60px_-38px_rgba(120,53,15,0.16)] backdrop-blur">
       <div className="flex gap-3 overflow-x-auto px-3 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {WORLD_TIMEZONES.map((zone) => {
           const isUserZone = zone.timeZone === userTimeZone;
