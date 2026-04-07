@@ -17,7 +17,12 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   title: "LifeOS",
-  description: "Production-ready personal productivity dashboard built with Next.js and Supabase."
+  description: "Production-ready personal productivity dashboard built with Next.js and Supabase.",
+  icons: {
+    icon: "/lifeos-browser-icon.png",
+    shortcut: "/lifeos-browser-icon.png",
+    apple: "/lifeos-browser-icon.png"
+  }
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

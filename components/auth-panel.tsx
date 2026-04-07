@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 
-import { LoaderCircle, Lock, Mail, MapPin, ShieldCheck, UserRound } from "lucide-react";
+import { LoaderCircle, Lock, Mail, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
@@ -204,7 +204,7 @@ export function AuthPanel({ variant }: { variant: AuthVariant }) {
     signup: {
       eyebrow: "Create account",
       title: "Start LifeOS with a strong foundation.",
-      body: "Set your name, secure your password, and personalize your workspace from day one."
+      body: "Create your account and start planning in one calm workspace."
     },
     "forgot-password": {
       eyebrow: "Password reset",
@@ -230,23 +230,6 @@ export function AuthPanel({ variant }: { variant: AuthVariant }) {
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-200">{content.eyebrow}</p>
           <h1 className="max-w-xl text-4xl font-bold tracking-tight sm:text-5xl">{content.title}</h1>
           <p className="max-w-xl text-base leading-7 text-slate-100">{content.body}</p>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-3">
-          <div className="rounded-[1.5rem] bg-white/10 p-4">
-            <ShieldCheck className="size-5 text-amber-200" />
-            <p className="mt-3 text-sm font-semibold">Secure auth</p>
-            <p className="mt-1 text-sm text-slate-200">Email auth, password reset, and session persistence.</p>
-          </div>
-          <div className="rounded-[1.5rem] bg-white/10 p-4">
-            <UserRound className="size-5 text-amber-200" />
-            <p className="mt-3 text-sm font-semibold">Profile ready</p>
-            <p className="mt-1 text-sm text-slate-200">Name, timezone, joined date, and account settings.</p>
-          </div>
-          <div className="rounded-[1.5rem] bg-white/10 p-4">
-            <MapPin className="size-5 text-amber-200" />
-            <p className="mt-3 text-sm font-semibold">Location aware</p>
-            <p className="mt-1 text-sm text-slate-200">Timezone and country only. No raw IP stored.</p>
-          </div>
         </div>
       </section>
 
