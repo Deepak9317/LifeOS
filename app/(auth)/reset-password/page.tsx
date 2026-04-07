@@ -1,11 +1,12 @@
 import { Suspense } from "react";
 
-import { AuthPanel } from "@/components/auth-panel";
+import { AuthPanelLoader } from "@/components/auth-panel-loader";
+import { AuthPanelShell } from "@/components/auth-panel-shell";
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={null}>
-      <AuthPanel variant="reset-password" />
+    <Suspense fallback={<AuthPanelShell />}>
+      <AuthPanelLoader variant="reset-password" />
     </Suspense>
   );
 }

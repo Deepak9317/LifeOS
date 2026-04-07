@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { AuthPanel } from "@/components/auth-panel";
+import { AuthPanelLoader } from "@/components/auth-panel-loader";
 import { getCurrentUser } from "@/lib/auth";
 
 export default async function ForgotPasswordPage() {
@@ -10,5 +10,5 @@ export default async function ForgotPasswordPage() {
     redirect("/");
   }
 
-  return <AuthPanel variant="forgot-password" />;
+  return <AuthPanelLoader variant="forgot-password" />;
 }

@@ -1,6 +1,6 @@
 import type { TaskPriority } from "@/types";
 
-export const APP_VERSION = "1.1.4";
+export const APP_VERSION = "1.1.5";
 
 export const PINNED_TAG = "pinned";
 

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { AuthPanel } from "@/components/auth-panel";
+import { AuthPanelLoader } from "@/components/auth-panel-loader";
 import { getCurrentUser } from "@/lib/auth";
 
 export default async function SignupPage() {
@@ -10,5 +10,5 @@ export default async function SignupPage() {
     redirect("/");
   }
 
-  return <AuthPanel variant="signup" />;
+  return <AuthPanelLoader variant="signup" />;
 }
