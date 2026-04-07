@@ -7,7 +7,12 @@ import { ArrowLeftRight, Globe2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { WORLD_TIMEZONES } from "@/lib/constants";
-import { formatDateInZone, formatTimeInZone, toLocalDateTimeInput, zonedDateFromLocalInput } from "@/lib/utils";
+import {
+  formatDateInZone,
+  formatTimeInZone,
+  toLocalDateTimeInput,
+  zonedDateFromLocalInput
+} from "@/lib/utils";
 
 export function ClockConverter() {
   const [fromZone, setFromZone] = useState("IST");
@@ -38,7 +43,7 @@ export function ClockConverter() {
         >
           {WORLD_TIMEZONES.map((zone) => (
             <option key={zone.key} value={zone.key}>
-              {zone.key} · {zone.label}
+              {zone.key} - {zone.label}
             </option>
           ))}
         </select>
@@ -52,7 +57,7 @@ export function ClockConverter() {
         >
           {WORLD_TIMEZONES.map((zone) => (
             <option key={zone.key} value={zone.key}>
-              {zone.key} · {zone.label}
+              {zone.key} - {zone.label}
             </option>
           ))}
         </select>
@@ -67,7 +72,7 @@ export function ClockConverter() {
             {formatTimeInZone(normalizedDate, source.timeZone)}
           </p>
           <p className="text-sm text-slate-600">
-            {source.label} · {formatDateInZone(normalizedDate, source.timeZone, { year: "numeric" })}
+            {source.label} - {formatDateInZone(normalizedDate, source.timeZone, { year: "numeric" })}
           </p>
         </div>
         <div className="rounded-[1.35rem] bg-sky-50/80 p-4 ring-1 ring-sky-100">
@@ -76,7 +81,7 @@ export function ClockConverter() {
             {formatTimeInZone(normalizedDate, target.timeZone)}
           </p>
           <p className="text-sm text-slate-600">
-            {target.label} · {formatDateInZone(normalizedDate, target.timeZone, { year: "numeric" })}
+            {target.label} - {formatDateInZone(normalizedDate, target.timeZone, { year: "numeric" })}
           </p>
         </div>
       </div>

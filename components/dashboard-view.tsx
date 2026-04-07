@@ -1,41 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   ArrowRight,
-  CheckCircle2,
-  CircleDollarSign,
+  CheckSquare,
+  CircleAlert,
+  Clock3,
+  Focus,
   NotebookPen,
-  Sparkles,
-  Target
+  PlusCircle,
+  Sparkles
 } from "lucide-react";
 import Link from "next/link";
-import { toast } from "sonner";
 
-import { BudgetManager } from "@/components/budget-manager";
-import { ClockConverter } from "@/components/clock-converter";
 import { NoteForm } from "@/components/note-form";
-import { ReminderPanel } from "@/components/reminder-panel";
 import { SetupNotice } from "@/components/setup-notice";
-import { TaskCalendar } from "@/components/task-calendar";
 import { TaskForm } from "@/components/task-form";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { EmptyState } from "@/components/ui/empty-state";
-import { WorldClock } from "@/components/world-clock";
-import { PRIORITY_STYLES } from "@/lib/constants";
-import {
-  formatFullDate,
-  formatTaskDate,
-  isPinnedNote,
-  isTaskDueToday,
-  priorityLabel,
-  readJson,
-  sortNotes,
-  sortTasks,
-  summarizeTaskState
-} from "@/lib/utils";
+import { Modal } from "@/components/ui/modal";
+import { isPinnedNote, safeDate, sortNotes, sortTasks, summarizeTaskState } from "@/lib/utils";
 import type { Note, SetupIssue, Task } from "@/types";
 
 type DashboardViewProps = {
@@ -44,6 +29,22 @@ type DashboardViewProps = {
   setupIssue?: SetupIssue | null;
 };
 
+type QuickAction = "task" | "note" | "focus" | null;
+
+function estimateFocusMinutes(tasks: Task[]) {
+  return tasks.filter((task) => task.completed).length * 25;
+}
+
+function formatMinutes(totalMinutes: number) {
+  if (totalMinutes >= 60) {
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return `${hours}h ${minutes}m`;
+  }
+
+  return `${totalMinutes}m`;
+}
+
 export function DashboardView({
   tasks: initialTasks,
   notes: initialNotes,
@@ -51,7 +52,7 @@ export function DashboardView({
 }: DashboardViewProps) {
   const [tasks, setTasks] = useState<Task[]>(sortTasks(initialTasks));
   const [notes, setNotes] = useState<Note[]>(sortNotes(initialNotes));
-  const [togglingTaskId, setTogglingTaskId] = useState<string | null>(null);
+  const [quickAction, setQuickAction] = useState<QuickAction>(null);
 
   useEffect(() => {
     setTasks(sortTasks(initialTasks));
@@ -62,122 +63,89 @@ export function DashboardView({
   }, [initialNotes]);
 
   const summary = summarizeTaskState(tasks);
-  const todaysTasks = tasks.filter((task) => isTaskDueToday(task) && !task.completed).slice(0, 3);
-  const upcomingTasks = tasks.filter((task) => !task.completed).slice(0, 4);
-  const recentNotes = notes.slice(0, 3);
-  const pinnedNote = notes.find(isPinnedNote) ?? notes[0] ?? null;
-  const featureSections = [
+  const overdueCount = useMemo(
+    () =>
+      tasks.filter((task) => {
+        const dueDate = safeDate(task.due_date);
+        return !task.completed && dueDate ? dueDate.getTime() < Date.now() : false;
+      }).length,
+    [tasks]
+  );
+  const focusMinutes = estimateFocusMinutes(tasks);
+  const todayName = new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(new Date());
+  const latestNote = notes[0] ?? null;
+  const pinnedNote = notes.find(isPinnedNote) ?? null;
+
+  const featureCards = [
     {
-      eyebrow: "Planning",
-      title: "Tasks and reminders",
-      description: "A short planning snapshot with the next actions and upcoming deadlines.",
-      delayClass: "[animation-delay:0ms]"
+      title: "Tasks",
+      summary:
+        summary.today > 0
+          ? `${summary.today} task${summary.today === 1 ? "" : "s"} due today`
+          : "No tasks due today",
+      description: overdueCount > 0 ? `${overdueCount} overdue need attention` : "Your task board is under control",
+      href: "/tasks",
+      cta: "View tasks",
+      icon: CheckSquare
     },
     {
-      eyebrow: "Time",
-      title: "Calendar and clocks",
-      description: "Scheduling, timezone checks, and quick conversions in one place.",
-      delayClass: "[animation-delay:50ms]"
+      title: "Notes",
+      summary: `${notes.length} note${notes.length === 1 ? "" : "s"} captured`,
+      description: latestNote?.title || "Open Notes to capture ideas and decisions",
+      href: "/notes",
+      cta: "Open notes",
+      icon: NotebookPen
     },
     {
-      eyebrow: "Finance",
-      title: "Budget manager",
-      description: "Money tracking stays separate from planning so the dashboard remains cleaner.",
-      delayClass: "[animation-delay:100ms]"
+      title: "Focus",
+      summary: pinnedNote ? "Pinned note ready for focus" : "Start a distraction-light session",
+      description: pinnedNote?.title || "Use Focus when you want only today’s work and one note",
+      href: "/focus",
+      cta: "Start focus",
+      icon: Focus
     },
     {
-      eyebrow: "Notes",
-      title: "Capture and focus",
-      description: "Recent notes, pinned context, and quick capture in their own section.",
-      delayClass: "[animation-delay:150ms]"
+      title: "Time",
+      summary: "Calendar, clocks, and timezone tools",
+      description: "Check schedules, world clocks, and convert across timezones",
+      href: "/time",
+      cta: "Open time",
+      icon: Clock3
     }
-  ];
-
-  const upsertTask = (task: Task) => {
-    setTasks((current) => sortTasks([task, ...current.filter((entry) => entry.id !== task.id)]));
-  };
-
-  const upsertNote = (note: Note) => {
-    setNotes((current) => sortNotes([note, ...current.filter((entry) => entry.id !== note.id)]));
-  };
-
-  const toggleTask = async (task: Task) => {
-    setTogglingTaskId(task.id);
-
-    try {
-      const response = await fetch(`/api/tasks/${task.id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          completed: !task.completed
-        })
-      });
-
-      const data = await readJson<{ task: Task }>(response);
-      upsertTask(data.task);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to update task.");
-    } finally {
-      setTogglingTaskId(null);
-    }
-  };
+  ] as const;
 
   return (
     <div className="space-y-6 p-1">
-      <section className="animate-fade-up overflow-hidden rounded-[2rem] border border-white/90 bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(236,254,255,0.92)_45%,rgba(240,253,244,0.92))] px-6 py-6 shadow-[0_28px_80px_-42px_rgba(15,23,42,0.25)] sm:px-8">
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_420px]">
-          <div className="space-y-4">
-            <Badge className="bg-slate-950/5 text-slate-700 ring-slate-950/8">
-              <Sparkles className="mr-1 size-3.5 text-teal-600" />
-              LifeOS dashboard
-            </Badge>
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-                Calm control for your day
-              </h1>
-              <p className="max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
-                A brief overview of your day, with every feature placed in its own clear section below.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Link
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#0f766e,#14b8a6)] px-4 text-sm font-semibold text-white shadow-[0_18px_32px_-18px_rgba(20,184,166,0.75)] transition hover:brightness-105"
-                href="/focus"
-              >
-                Focus mode
-                <ArrowRight className="size-4" />
-              </Link>
-              <Link
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white/85 px-4 text-sm font-semibold text-slate-900 transition hover:bg-white"
-                href="/tasks"
-              >
-                Open tasks
-              </Link>
-            </div>
+      <section className="animate-fade-up rounded-[2rem] border border-white/90 bg-[linear-gradient(135deg,rgba(255,255,255,0.97),rgba(239,248,245,0.94),rgba(240,249,255,0.92))] px-6 py-8 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.22)]">
+        <div className="space-y-4">
+          <div className="inline-flex items-center gap-2 rounded-full bg-slate-950/5 px-3 py-1.5 text-sm font-semibold text-slate-700 ring-1 ring-slate-950/5">
+            <Sparkles className="size-4 text-teal-600" />
+            LifeOS control center
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-teal-700">{todayName}</p>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+              Good day. Here is what matters now.
+            </h1>
+            <p className="max-w-3xl text-sm leading-6 text-slate-600 sm:text-base">
+              The dashboard is now just a launch point: quick actions, brief stats, and feature shortcuts.
+            </p>
           </div>
 
-          {setupIssue ? null : (
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="animate-soft-pulse rounded-[1.6rem] bg-white/85 p-4 ring-1 ring-cyan-100">
-                <p className="text-sm text-slate-500">Due today</p>
-                <p className="mt-3 text-3xl font-bold text-slate-950">{summary.today}</p>
-              </div>
-              <div className="animate-soft-pulse rounded-[1.6rem] bg-white/85 p-4 ring-1 ring-emerald-100 [animation-delay:80ms]">
-                <p className="text-sm text-slate-500">Completed</p>
-                <p className="mt-3 text-3xl font-bold text-slate-950">{summary.completed}</p>
-              </div>
-              <div className="rounded-[1.6rem] bg-white/85 p-4 ring-1 ring-amber-100">
-                <p className="text-sm text-slate-500">Open tasks</p>
-                <p className="mt-3 text-3xl font-bold text-slate-950">{summary.pending}</p>
-              </div>
-              <div className="rounded-[1.6rem] bg-white/85 p-4 ring-1 ring-violet-100">
-                <p className="text-sm text-slate-500">Notes</p>
-                <p className="mt-3 text-3xl font-bold text-slate-950">{notes.length}</p>
-              </div>
-            </div>
-          )}
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={() => setQuickAction("task")}>
+              <PlusCircle className="size-4" />
+              Add Task
+            </Button>
+            <Button onClick={() => setQuickAction("note")} variant="secondary">
+              <PlusCircle className="size-4" />
+              Add Note
+            </Button>
+            <Button onClick={() => setQuickAction("focus")} variant="secondary">
+              <Focus className="size-4" />
+              Start Focus
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -185,229 +153,118 @@ export function DashboardView({
 
       {setupIssue ? null : (
         <>
-          <section className="grid gap-4 lg:grid-cols-4">
-            {featureSections.map((section) => (
-              <Card
-                key={section.title}
-                className={`card-hover animate-fade-up rounded-[1.75rem] border-white/80 bg-white/88 ${section.delayClass}`}
-              >
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                  {section.eyebrow}
-                </p>
-                <h2 className="mt-3 text-xl font-bold text-slate-950">{section.title}</h2>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{section.description}</p>
-              </Card>
-            ))}
+          <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <Card className="card-hover animate-fade-up rounded-[1.75rem] bg-white/90 [animation-delay:0ms]">
+              <p className="text-sm text-slate-500">Tasks today</p>
+              <p className="mt-3 text-3xl font-bold text-slate-950">{summary.today}</p>
+            </Card>
+            <Card className="card-hover animate-fade-up rounded-[1.75rem] bg-white/90 [animation-delay:40ms]">
+              <div className="flex items-center gap-2 text-slate-500">
+                <CircleAlert className="size-4 text-amber-600" />
+                <p className="text-sm">Overdue</p>
+              </div>
+              <p className="mt-3 text-3xl font-bold text-slate-950">{overdueCount}</p>
+            </Card>
+            <Card className="card-hover animate-fade-up rounded-[1.75rem] bg-white/90 [animation-delay:80ms]">
+              <p className="text-sm text-slate-500">Notes count</p>
+              <p className="mt-3 text-3xl font-bold text-slate-950">{notes.length}</p>
+            </Card>
+            <Card className="card-hover animate-fade-up rounded-[1.75rem] bg-white/90 [animation-delay:120ms]">
+              <p className="text-sm text-slate-500">Focus time</p>
+              <p className="mt-3 text-3xl font-bold text-slate-950">{formatMinutes(focusMinutes)}</p>
+            </Card>
           </section>
 
-          <section className="space-y-6">
-            <div className="space-y-2">
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-700">Planning</p>
-              <h2 className="text-2xl font-bold text-slate-950">Brief dashboard details</h2>
-              <p className="max-w-3xl text-sm leading-6 text-slate-600">
-                The dashboard stays lightweight here and only shows the most important task and reminder details.
-              </p>
-            </div>
+          <section className="grid gap-4 xl:grid-cols-2">
+            {featureCards.map((card, index) => {
+              const Icon = card.icon;
 
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.9fr)]">
-            <Card className="card-hover animate-fade-up space-y-5 border-cyan-100 bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(240,249,255,0.94))] [animation-delay:40ms]">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-700">
-                    Today
-                  </p>
-                  <h2 className="mt-2 text-2xl font-bold text-slate-950">Task runway</h2>
-                </div>
-                <Link
-                  className="inline-flex h-9 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
-                  href="/tasks"
+              return (
+                <Card
+                  key={card.title}
+                  className={`card-hover animate-fade-up rounded-[1.75rem] border-white/80 bg-white/92 [animation-delay:${index * 40}ms]`}
                 >
-                  Task board
-                  <ArrowRight className="size-4" />
-                </Link>
-              </div>
-
-              {todaysTasks.length === 0 ? (
-                <EmptyState
-                  actionLabel="Create a task"
-                  description="You have a clear runway today. Add a task to start shaping the day."
-                  icon={Target}
-                  onAction={() => {
-                    document.getElementById("task-title")?.focus();
-                  }}
-                  title="Nothing due today"
-                />
-              ) : (
-                <div className="space-y-3">
-                  {todaysTasks.map((task) => (
-                    <button
-                      key={task.id}
-                      className="flex w-full items-start gap-4 rounded-[1.4rem] bg-white/85 px-4 py-4 text-left ring-1 ring-cyan-100 transition hover:-translate-y-0.5 hover:ring-cyan-200"
-                      onClick={() => toggleTask(task)}
-                      type="button"
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-2">
+                      <div className="inline-flex size-11 items-center justify-center rounded-[1rem] bg-slate-950/5 text-slate-700">
+                        <Icon className="size-5" />
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold text-slate-950">{card.title}</h2>
+                        <p className="mt-2 text-sm font-medium text-slate-800">{card.summary}</p>
+                        <p className="mt-1 text-sm leading-6 text-slate-600">{card.description}</p>
+                      </div>
+                    </div>
+                    <Link
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
+                      href={card.href}
                     >
-                      <span className="mt-1 inline-flex size-6 items-center justify-center rounded-full border border-cyan-100 bg-cyan-50">
-                        {task.completed ? (
-                          <CheckCircle2 className="size-4 text-teal-600" />
-                        ) : togglingTaskId === task.id ? (
-                          <span className="size-2 rounded-full bg-teal-600" />
-                        ) : null}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <p className="font-semibold text-slate-900">{task.title}</p>
-                          <span
-                            className={`rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${PRIORITY_STYLES[task.priority]}`}
-                          >
-                            {priorityLabel(task.priority)}
-                          </span>
-                        </div>
-                        <p className="mt-2 text-sm text-slate-600">{formatTaskDate(task.due_date)}</p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </Card>
-
-            <ReminderPanel tasks={upcomingTasks} />
-          </div>
-          </section>
-
-          <section className="space-y-6">
-            <div className="space-y-2">
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-700">Time</p>
-              <h2 className="text-2xl font-bold text-slate-950">Scheduling tools</h2>
-              <p className="max-w-3xl text-sm leading-6 text-slate-600">
-                Calendar, clocks, and time conversion live together here for faster planning.
-              </p>
-            </div>
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(360px,0.95fr)]">
-            <TaskCalendar tasks={tasks} />
-            <ClockConverter />
-          </div>
-          <WorldClock />
-          </section>
-
-          <section className="space-y-6">
-            <div className="space-y-2">
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-700">Finance</p>
-              <h2 className="text-2xl font-bold text-slate-950">Budget section</h2>
-              <p className="max-w-3xl text-sm leading-6 text-slate-600">
-                Budget tracking is separated from planning and notes so money updates do not crowd the dashboard.
-              </p>
-            </div>
-            <BudgetManager />
-          </section>
-
-          <section className="space-y-6">
-            <div className="space-y-2">
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-violet-700">Notes</p>
-              <h2 className="text-2xl font-bold text-slate-950">Notes and focus</h2>
-              <p className="max-w-3xl text-sm leading-6 text-slate-600">
-                Capture, review, and pin context in a separate section so note workflows stay distinct.
-              </p>
-            </div>
-          <div className="grid gap-6">
-            <Card className="card-hover animate-fade-up space-y-5 border-violet-100 bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(248,245,255,0.95))] [animation-delay:180ms]">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-violet-700">
-                    Notes
-                  </p>
-                  <h2 className="mt-2 text-2xl font-bold text-slate-950">Recent notes</h2>
-                </div>
-                <Link
-                  className="inline-flex h-9 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
-                  href="/notes"
-                >
-                  Open notes
-                  <ArrowRight className="size-4" />
-                </Link>
-              </div>
-
-              {recentNotes.length === 0 ? (
-                <EmptyState
-                  description="Capture ideas, meeting notes, and decisions as they happen."
-                  icon={NotebookPen}
-                  title="No notes yet"
-                />
-              ) : (
-                <div className="space-y-3">
-                  {recentNotes.map((note) => (
-                    <article key={note.id} className="rounded-[1.4rem] bg-white/85 p-4 ring-1 ring-violet-100">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <h3 className="text-base font-semibold text-slate-900">
-                            {note.title || "Untitled note"}
-                          </h3>
-                          <p className="mt-1 text-xs text-slate-500">{formatFullDate(note.created_at)}</p>
-                        </div>
-                        {isPinnedNote(note) ? (
-                          <Badge className="bg-amber-400/15 text-amber-700 ring-amber-400/20">Pinned</Badge>
-                        ) : null}
-                      </div>
-                      <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-700">
-                        {note.content || "No content yet."}
-                      </p>
-                    </article>
-                  ))}
-                </div>
-              )}
-            </Card>
-          </div>
-          </section>
-
-          <section className="space-y-6">
-            <div className="space-y-2">
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-700">Quick actions</p>
-              <h2 className="text-2xl font-bold text-slate-950">Create and continue</h2>
-              <p className="max-w-3xl text-sm leading-6 text-slate-600">
-                Fast entry tools and your pinned context stay together so it is easy to add work and jump back in.
-              </p>
-            </div>
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(340px,0.9fr)]">
-            <TaskForm compact onSaved={(task) => upsertTask(task)} />
-            <NoteForm compact onSaved={(note) => upsertNote(note)} />
-            <Card className="card-hover animate-fade-up space-y-4 border-amber-100 bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(255,250,235,0.95))] [animation-delay:210ms]">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-700">
-                    Focus
-                  </p>
-                  <h2 className="mt-2 text-2xl font-bold text-slate-950">Pinned note</h2>
-                </div>
-                <CircleDollarSign className="size-5 text-amber-500/70" />
-              </div>
-              {pinnedNote ? (
-                <div className="rounded-[1.5rem] bg-white/85 p-5 ring-1 ring-amber-100">
-                  <p className="text-sm text-slate-500">{isPinnedNote(pinnedNote) ? "Focus ready" : "Latest note"}</p>
-                  <h3 className="mt-2 text-xl font-bold text-slate-950">
-                    {pinnedNote.title || "Untitled note"}
-                  </h3>
-                  <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-slate-700">
-                    {pinnedNote.content || "Pin a note from Notes to keep the right context close."}
-                  </p>
-                  <Link
-                    className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#0f766e,#14b8a6)] px-4 text-sm font-semibold text-white shadow-[0_18px_32px_-18px_rgba(20,184,166,0.7)] transition hover:brightness-105"
-                    href="/focus"
-                  >
-                    Open focus mode
-                    <ArrowRight className="size-4" />
-                  </Link>
-                </div>
-              ) : (
-                <EmptyState
-                  description="Pin a note from the Notes workspace to keep context visible while you work."
-                  icon={Target}
-                  title="No pinned note yet"
-                />
-              )}
-            </Card>
-          </div>
+                      {card.cta}
+                      <ArrowRight className="size-4" />
+                    </Link>
+                  </div>
+                </Card>
+              );
+            })}
           </section>
         </>
       )}
+
+      <Modal
+        description="Add a task without leaving the dashboard."
+        onClose={() => setQuickAction(null)}
+        open={quickAction === "task"}
+        title="Quick add task"
+      >
+        <TaskForm
+          compact
+          onSaved={(task) => {
+            setTasks((current) => sortTasks([task, ...current.filter((entry) => entry.id !== task.id)]));
+            setQuickAction(null);
+          }}
+        />
+      </Modal>
+
+      <Modal
+        description="Capture a note quickly, then get back to work."
+        onClose={() => setQuickAction(null)}
+        open={quickAction === "note"}
+        title="Quick add note"
+      >
+        <NoteForm
+          compact
+          onSaved={(note) => {
+            setNotes((current) => sortNotes([note, ...current.filter((entry) => entry.id !== note.id)]));
+            setQuickAction(null);
+          }}
+        />
+      </Modal>
+
+      <Modal
+        description="Focus Mode is useful when you want a stripped-down view with only today’s tasks and one pinned note."
+        onClose={() => setQuickAction(null)}
+        open={quickAction === "focus"}
+        title="Start focus"
+      >
+        <div className="space-y-4">
+          <p className="text-sm leading-6 text-slate-600">
+            It is optional. Think of it as a distraction-light session, not a required part of the product.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#0f766e,#14b8a6)] px-4 text-sm font-semibold text-white shadow-[0_18px_32px_-18px_rgba(20,184,166,0.7)] transition hover:brightness-105"
+              href="/focus"
+              onClick={() => setQuickAction(null)}
+            >
+              Open Focus Mode
+              <ArrowRight className="size-4" />
+            </Link>
+            <Button onClick={() => setQuickAction(null)} variant="secondary">
+              Maybe later
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

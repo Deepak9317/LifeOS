@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 
 import {
+  CircleDollarSign,
   Clock3,
   Focus,
   LayoutDashboard,
@@ -10,6 +11,7 @@ import {
   LogOut,
   Menu,
   NotebookPen,
+  TimerReset,
   X
 } from "lucide-react";
 import Link from "next/link";
@@ -27,6 +29,8 @@ const navigation = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/tasks", label: "Tasks", icon: Clock3 },
   { href: "/notes", label: "Notes", icon: NotebookPen },
+  { href: "/time", label: "Time", icon: TimerReset },
+  { href: "/budget", label: "Budget", icon: CircleDollarSign },
   { href: "/focus", label: "Focus Mode", icon: Focus }
 ];
 

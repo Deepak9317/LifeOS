@@ -6,7 +6,6 @@ import { CheckCircle2, ClipboardList, Plus, SlidersHorizontal } from "lucide-rea
 import { toast } from "sonner";
 
 import { TaskForm } from "@/components/task-form";
-import { TaskCalendar } from "@/components/task-calendar";
 import { SetupNotice } from "@/components/setup-notice";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -115,7 +114,6 @@ export function TasksWorkspace({
       {setupIssue ? null : (
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(340px,0.9fr)]">
         <div className="space-y-6">
-          <TaskCalendar compact tasks={tasks} />
           <Card className="space-y-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
