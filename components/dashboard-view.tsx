@@ -62,10 +62,36 @@ export function DashboardView({
   }, [initialNotes]);
 
   const summary = summarizeTaskState(tasks);
-  const todaysTasks = tasks.filter((task) => isTaskDueToday(task) && !task.completed).slice(0, 4);
-  const upcomingTasks = tasks.filter((task) => !task.completed).slice(0, 6);
-  const recentNotes = notes.slice(0, 4);
+  const todaysTasks = tasks.filter((task) => isTaskDueToday(task) && !task.completed).slice(0, 3);
+  const upcomingTasks = tasks.filter((task) => !task.completed).slice(0, 4);
+  const recentNotes = notes.slice(0, 3);
   const pinnedNote = notes.find(isPinnedNote) ?? notes[0] ?? null;
+  const featureSections = [
+    {
+      eyebrow: "Planning",
+      title: "Tasks and reminders",
+      description: "A short planning snapshot with the next actions and upcoming deadlines.",
+      delayClass: "[animation-delay:0ms]"
+    },
+    {
+      eyebrow: "Time",
+      title: "Calendar and clocks",
+      description: "Scheduling, timezone checks, and quick conversions in one place.",
+      delayClass: "[animation-delay:50ms]"
+    },
+    {
+      eyebrow: "Finance",
+      title: "Budget manager",
+      description: "Money tracking stays separate from planning so the dashboard remains cleaner.",
+      delayClass: "[animation-delay:100ms]"
+    },
+    {
+      eyebrow: "Notes",
+      title: "Capture and focus",
+      description: "Recent notes, pinned context, and quick capture in their own section.",
+      delayClass: "[animation-delay:150ms]"
+    }
+  ];
 
   const upsertTask = (task: Task) => {
     setTasks((current) => sortTasks([task, ...current.filter((entry) => entry.id !== task.id)]));
@@ -112,7 +138,7 @@ export function DashboardView({
                 Calm control for your day
               </h1>
               <p className="max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
-                Tasks, reminders, clocks, and money snapshots in one compact workspace.
+                A brief overview of your day, with every feature placed in its own clear section below.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -135,7 +161,7 @@ export function DashboardView({
           {setupIssue ? null : (
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="animate-soft-pulse rounded-[1.6rem] bg-white/85 p-4 ring-1 ring-cyan-100">
-                <p className="text-sm text-slate-500">Today</p>
+                <p className="text-sm text-slate-500">Due today</p>
                 <p className="mt-3 text-3xl font-bold text-slate-950">{summary.today}</p>
               </div>
               <div className="animate-soft-pulse rounded-[1.6rem] bg-white/85 p-4 ring-1 ring-emerald-100 [animation-delay:80ms]">
@@ -159,6 +185,30 @@ export function DashboardView({
 
       {setupIssue ? null : (
         <>
+          <section className="grid gap-4 lg:grid-cols-4">
+            {featureSections.map((section) => (
+              <Card
+                key={section.title}
+                className={`card-hover animate-fade-up rounded-[1.75rem] border-white/80 bg-white/88 ${section.delayClass}`}
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  {section.eyebrow}
+                </p>
+                <h2 className="mt-3 text-xl font-bold text-slate-950">{section.title}</h2>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{section.description}</p>
+              </Card>
+            ))}
+          </section>
+
+          <section className="space-y-6">
+            <div className="space-y-2">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-700">Planning</p>
+              <h2 className="text-2xl font-bold text-slate-950">Brief dashboard details</h2>
+              <p className="max-w-3xl text-sm leading-6 text-slate-600">
+                The dashboard stays lightweight here and only shows the most important task and reminder details.
+              </p>
+            </div>
+
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.9fr)]">
             <Card className="card-hover animate-fade-up space-y-5 border-cyan-100 bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(240,249,255,0.94))] [animation-delay:40ms]">
               <div className="flex items-center justify-between gap-4">
@@ -213,9 +263,6 @@ export function DashboardView({
                           </span>
                         </div>
                         <p className="mt-2 text-sm text-slate-600">{formatTaskDate(task.due_date)}</p>
-                        {task.description ? (
-                          <p className="mt-2 line-clamp-2 text-sm text-slate-700">{task.description}</p>
-                        ) : null}
                       </div>
                     </button>
                   ))}
@@ -225,17 +272,43 @@ export function DashboardView({
 
             <ReminderPanel tasks={upcomingTasks} />
           </div>
+          </section>
 
+          <section className="space-y-6">
+            <div className="space-y-2">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-700">Time</p>
+              <h2 className="text-2xl font-bold text-slate-950">Scheduling tools</h2>
+              <p className="max-w-3xl text-sm leading-6 text-slate-600">
+                Calendar, clocks, and time conversion live together here for faster planning.
+              </p>
+            </div>
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(360px,0.95fr)]">
             <TaskCalendar tasks={tasks} />
-            <div className="grid gap-6">
-              <ClockConverter />
-              <BudgetManager />
-            </div>
+            <ClockConverter />
           </div>
+          <WorldClock />
+          </section>
 
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(380px,0.95fr)]">
-            <WorldClock />
+          <section className="space-y-6">
+            <div className="space-y-2">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-700">Finance</p>
+              <h2 className="text-2xl font-bold text-slate-950">Budget section</h2>
+              <p className="max-w-3xl text-sm leading-6 text-slate-600">
+                Budget tracking is separated from planning and notes so money updates do not crowd the dashboard.
+              </p>
+            </div>
+            <BudgetManager />
+          </section>
+
+          <section className="space-y-6">
+            <div className="space-y-2">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-violet-700">Notes</p>
+              <h2 className="text-2xl font-bold text-slate-950">Notes and focus</h2>
+              <p className="max-w-3xl text-sm leading-6 text-slate-600">
+                Capture, review, and pin context in a separate section so note workflows stay distinct.
+              </p>
+            </div>
+          <div className="grid gap-6">
             <Card className="card-hover animate-fade-up space-y-5 border-violet-100 bg-[linear-gradient(145deg,rgba(255,255,255,0.98),rgba(248,245,255,0.95))] [animation-delay:180ms]">
               <div className="flex items-center justify-between gap-4">
                 <div>
@@ -274,7 +347,7 @@ export function DashboardView({
                           <Badge className="bg-amber-400/15 text-amber-700 ring-amber-400/20">Pinned</Badge>
                         ) : null}
                       </div>
-                      <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-700">
+                      <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-700">
                         {note.content || "No content yet."}
                       </p>
                     </article>
@@ -283,7 +356,16 @@ export function DashboardView({
               )}
             </Card>
           </div>
+          </section>
 
+          <section className="space-y-6">
+            <div className="space-y-2">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-amber-700">Quick actions</p>
+              <h2 className="text-2xl font-bold text-slate-950">Create and continue</h2>
+              <p className="max-w-3xl text-sm leading-6 text-slate-600">
+                Fast entry tools and your pinned context stay together so it is easy to add work and jump back in.
+              </p>
+            </div>
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(340px,0.9fr)]">
             <TaskForm compact onSaved={(task) => upsertTask(task)} />
             <NoteForm compact onSaved={(note) => upsertNote(note)} />
@@ -323,6 +405,7 @@ export function DashboardView({
               )}
             </Card>
           </div>
+          </section>
         </>
       )}
     </div>

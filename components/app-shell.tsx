@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { WorldClockStrip } from "@/components/world-clock-strip";
+import { APP_VERSION } from "@/lib/constants";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -92,6 +93,12 @@ export function AppShell({
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-600">Signed in</p>
               <p className="mt-2 text-sm font-semibold text-slate-900">{userEmail}</p>
             </div>
+            <div className="rounded-2xl bg-slate-950/5 px-3 py-2">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Version
+              </p>
+              <p className="mt-1 text-sm font-semibold text-slate-900">v{APP_VERSION}</p>
+            </div>
             <Button className="w-full" disabled={isPending} onClick={logout} variant="secondary">
               {isPending ? <LoaderCircle className="size-4 animate-spin" /> : <LogOut className="size-4" />}
               Logout
@@ -132,6 +139,12 @@ export function AppShell({
                   );
                 })}
               </nav>
+              <div className="mt-4 rounded-2xl bg-slate-950/5 px-4 py-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  Version
+                </p>
+                <p className="mt-1 text-sm font-semibold text-slate-900">v{APP_VERSION}</p>
+              </div>
               <Button className="mt-4 w-full" disabled={isPending} onClick={logout} variant="secondary">
                 {isPending ? <LoaderCircle className="size-4 animate-spin" /> : <LogOut className="size-4" />}
                 Logout

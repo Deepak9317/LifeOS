@@ -1,5 +1,7 @@
 import type { TaskPriority } from "@/types";
 
+export const APP_VERSION = "1.0.2";
+
 export const PINNED_TAG = "pinned";
 
 export const PRIORITY_ORDER: TaskPriority[] = ["high", "medium", "low"];
