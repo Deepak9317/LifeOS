@@ -9,8 +9,10 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { getHiddenClockPagesFromMetadata } from "@/lib/profile-preferences";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { passwordChangeSchema, profileSchema } from "@/lib/validation";
+import { formatFullDate } from "@/lib/utils";
 import type { Profile } from "@/types";
 
 export function ProfileWorkspace({
@@ -35,7 +37,9 @@ export function ProfileWorkspace({
   const [fullName, setFullName] = useState(profile?.full_name ?? user.user_metadata.full_name ?? "");
   const [timezone, setTimezone] = useState(profile?.timezone ?? "");
   const [countryCode, setCountryCode] = useState(profile?.country_code ?? "");
-  const [hiddenClockPages, setHiddenClockPages] = useState<string[]>(profile?.hidden_clock_pages ?? []);
+  const [hiddenClockPages, setHiddenClockPages] = useState<string[]>(
+    profile?.hidden_clock_pages ?? getHiddenClockPagesFromMetadata(user)
+  );
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -48,7 +52,7 @@ export function ProfileWorkspace({
     }
   }, [timezone]);
 
-  const joinedDate = new Date(profile?.created_at ?? user.created_at).toLocaleDateString();
+  const joinedDate = formatFullDate(profile?.created_at ?? user.created_at);
 
   const refreshLocation = async () => {
     const timezoneValue = Intl.DateTimeFormat().resolvedOptions().timeZone;

@@ -3,13 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { WORLD_TIMEZONES } from "@/lib/constants";
-import { formatDateInZone, formatTimeInZone } from "@/lib/utils";
+import { formatDateInZone, formatTimeInZone, safeDate } from "@/lib/utils";
 
-export function WorldClockStrip() {
-  const [now, setNow] = useState(() => new Date());
+export function WorldClockStrip({ referenceDate }: { referenceDate: string }) {
+  const initialDate = useMemo(() => safeDate(referenceDate) ?? new Date(0), [referenceDate]);
+  const [now, setNow] = useState(initialDate);
   const [userTimeZone, setUserTimeZone] = useState("");
 
   useEffect(() => {
+    setNow(new Date());
     setUserTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
 
     const interval = window.setInterval(() => {

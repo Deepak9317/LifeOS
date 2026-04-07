@@ -45,12 +45,14 @@ const companyLinks = [
 
 export function AppShell({
   children,
+  clockReference,
   hiddenClockPages = [],
   isAdmin = false,
   userEmail,
   profileName
 }: {
   children: React.ReactNode;
+  clockReference: string;
   hiddenClockPages?: string[] | null;
   isAdmin?: boolean;
   userEmail: string;
@@ -176,7 +178,7 @@ export function AppShell({
           </>
         ) : null}
 
-        {shouldHideClockStrip ? null : <WorldClockStrip />}
+        {shouldHideClockStrip ? null : <WorldClockStrip referenceDate={clockReference} />}
 
         <main className="min-w-0 flex-1 rounded-[2rem]">{children}</main>
 

@@ -33,6 +33,7 @@ import type { Note, SetupIssue, Task } from "@/types";
 type DashboardViewProps = {
   tasks: Task[];
   notes: Note[];
+  serverNow: string;
   setupIssue?: SetupIssue | null;
 };
 
@@ -75,11 +76,14 @@ function clampPercent(value: number) {
 export function DashboardView({
   tasks: initialTasks,
   notes: initialNotes,
+  serverNow,
   setupIssue = null
 }: DashboardViewProps) {
   const [tasks, setTasks] = useState<Task[]>(sortTasks(initialTasks));
   const [notes, setNotes] = useState<Note[]>(sortNotes(initialNotes));
   const [quickAction, setQuickAction] = useState<QuickAction>(null);
+  const initialNow = useMemo(() => safeDate(serverNow) ?? new Date(0), [serverNow]);
+  const [now, setNow] = useState<Date>(initialNow);
 
   useEffect(() => {
     setTasks(sortTasks(initialTasks));
@@ -89,18 +93,22 @@ export function DashboardView({
     setNotes(sortNotes(initialNotes));
   }, [initialNotes]);
 
+  useEffect(() => {
+    setNow(new Date());
+  }, []);
+
   const summary = summarizeTaskState(tasks);
   const overdueTasks = useMemo(
     () =>
       tasks.filter((task) => {
         const dueDate = safeDate(task.due_date);
-        return !task.completed && dueDate ? dueDate.getTime() < Date.now() : false;
+        return !task.completed && dueDate ? dueDate.getTime() < now.getTime() : false;
       }),
-    [tasks]
+    [now, tasks]
   );
   const overdueCount = overdueTasks.length;
   const focusMinutes = estimateFocusMinutes(tasks);
-  const todayName = new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(new Date());
+  const todayName = new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(now);
   const latestNote = notes[0] ?? null;
   const pinnedNote = notes.find(isPinnedNote) ?? null;
   const dueTodayTasks = tasks.filter((task) => {
@@ -109,7 +117,6 @@ export function DashboardView({
       return false;
     }
 
-    const now = new Date();
     return dueDate.toDateString() === now.toDateString();
   });
   const topTodayTasks = dueTodayTasks.slice(0, 2);

@@ -31,7 +31,7 @@ export const profileSchema = z.object({
   full_name: z.string().trim().min(2, "Enter your full name.").max(80, "Use 80 characters or less."),
   timezone: z.string().trim().min(2).max(80).optional().nullable(),
   country_code: z.string().trim().min(2).max(8).optional().nullable(),
-  hidden_clock_pages: z.array(z.string().trim().min(1).max(40)).max(20).optional().default([])
+  hidden_clock_pages: z.array(z.string().trim().min(1).max(40)).max(20).optional()
 });
 
 export const passwordChangeSchema = z
