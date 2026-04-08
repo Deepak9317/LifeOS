@@ -37,6 +37,7 @@ export function ProfileWorkspace({
   const [fullName, setFullName] = useState(profile?.full_name ?? user.user_metadata.full_name ?? "");
   const [timezone, setTimezone] = useState(profile?.timezone ?? "");
   const [countryCode, setCountryCode] = useState(profile?.country_code ?? "");
+  const [notificationEmail, setNotificationEmail] = useState(profile?.notification_email ?? user.email ?? "");
   const [hiddenClockPages, setHiddenClockPages] = useState<string[]>(
     profile?.hidden_clock_pages ?? getHiddenClockPagesFromMetadata(user)
   );
@@ -72,6 +73,7 @@ export function ProfileWorkspace({
       full_name: fullName,
       timezone: timezone || null,
       country_code: countryCode || null,
+      notification_email: notificationEmail || null,
       hidden_clock_pages: hiddenClockPages
     });
 
@@ -182,6 +184,18 @@ export function ProfileWorkspace({
               <label className="text-sm font-medium text-stone-700">Country</label>
               <Input onChange={(event) => setCountryCode(event.target.value.toUpperCase())} value={countryCode} />
             </div>
+            <div className="space-y-2 sm:col-span-2">
+              <label className="text-sm font-medium text-stone-700">Reminder email</label>
+              <Input
+                onChange={(event) => setNotificationEmail(event.target.value)}
+                placeholder={user.email ?? "name@example.com"}
+                type="email"
+                value={notificationEmail}
+              />
+              <p className="text-xs text-stone-500">
+                Task reminder emails use this address. Leave it as your signup email or replace it with another inbox.
+              </p>
+            </div>
           </div>
 
           <div className="flex flex-wrap gap-3">
@@ -263,6 +277,10 @@ export function ProfileWorkspace({
               <div className="rounded-[1.4rem] bg-amber-50/70 px-4 py-4">
                 <p className="text-sm font-semibold text-stone-900">Joined</p>
                 <p className="mt-1 text-sm text-stone-600">{joinedDate}</p>
+              </div>
+              <div className="rounded-[1.4rem] bg-amber-50/70 px-4 py-4">
+                <p className="text-sm font-semibold text-stone-900">Reminder email</p>
+                <p className="mt-1 text-sm text-stone-600">{notificationEmail || user.email || "Not set"}</p>
               </div>
             </div>
           </Card>

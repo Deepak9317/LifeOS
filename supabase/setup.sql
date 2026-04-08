@@ -20,8 +20,12 @@ create table if not exists public.tasks (
   title text not null,
   description text,
   due_date timestamptz,
+  reminder_at timestamptz,
   priority public.task_priority not null default 'medium',
   completed boolean not null default false,
+  notify_on_site boolean not null default false,
+  notify_via_email boolean not null default false,
+  email_notified_at timestamptz,
   created_at timestamptz not null default timezone('utc', now())
 );
 
@@ -42,6 +46,7 @@ create table if not exists public.profiles (
   country_code text,
   avatar_url text,
   hidden_clock_pages text[] not null default '{}',
+  notification_email text,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
@@ -70,8 +75,12 @@ alter table public.tasks add column if not exists user_id uuid;
 alter table public.tasks add column if not exists title text;
 alter table public.tasks add column if not exists description text;
 alter table public.tasks add column if not exists due_date timestamptz;
+alter table public.tasks add column if not exists reminder_at timestamptz;
 alter table public.tasks add column if not exists priority public.task_priority default 'medium';
 alter table public.tasks add column if not exists completed boolean default false;
+alter table public.tasks add column if not exists notify_on_site boolean default false;
+alter table public.tasks add column if not exists notify_via_email boolean default false;
+alter table public.tasks add column if not exists email_notified_at timestamptz;
 alter table public.tasks add column if not exists created_at timestamptz default timezone('utc', now());
 
 alter table public.notes add column if not exists id uuid default gen_random_uuid();
@@ -88,6 +97,7 @@ alter table public.profiles add column if not exists timezone text;
 alter table public.profiles add column if not exists country_code text;
 alter table public.profiles add column if not exists avatar_url text;
 alter table public.profiles add column if not exists hidden_clock_pages text[] default '{}';
+alter table public.profiles add column if not exists notification_email text;
 alter table public.profiles add column if not exists created_at timestamptz default timezone('utc', now());
 alter table public.profiles add column if not exists updated_at timestamptz default timezone('utc', now());
 alter table public.budget_entries add column if not exists id uuid default gen_random_uuid();
@@ -196,6 +206,8 @@ end $$;
 
 update public.tasks set completed = false where completed is null;
 update public.tasks set priority = 'medium' where priority is null;
+update public.tasks set notify_on_site = false where notify_on_site is null;
+update public.tasks set notify_via_email = false where notify_via_email is null;
 update public.tasks set created_at = timezone('utc', now()) where created_at is null;
 update public.notes set tags = '{}'::text[] where tags is null;
 update public.notes set created_at = timezone('utc', now()) where created_at is null;
@@ -214,6 +226,8 @@ update public.budget_settings set updated_at = timezone('utc', now()) where upda
 alter table public.tasks alter column id set default gen_random_uuid();
 alter table public.tasks alter column priority set default 'medium';
 alter table public.tasks alter column completed set default false;
+alter table public.tasks alter column notify_on_site set default false;
+alter table public.tasks alter column notify_via_email set default false;
 alter table public.tasks alter column created_at set default timezone('utc', now());
 alter table public.notes alter column id set default gen_random_uuid();
 alter table public.notes alter column tags set default '{}';
@@ -351,6 +365,8 @@ alter table public.tasks alter column user_id set not null;
 alter table public.tasks alter column title set not null;
 alter table public.tasks alter column priority set not null;
 alter table public.tasks alter column completed set not null;
+alter table public.tasks alter column notify_on_site set not null;
+alter table public.tasks alter column notify_via_email set not null;
 alter table public.tasks alter column created_at set not null;
 alter table public.notes alter column user_id set not null;
 alter table public.notes alter column tags set not null;
@@ -376,6 +392,8 @@ alter table public.budget_settings alter column updated_at set not null;
 comment on column public.notes.tags is 'Use the reserved pinned tag to surface a note in Focus Mode.';
 
 create index if not exists tasks_user_due_date_idx on public.tasks (user_id, due_date);
+create index if not exists tasks_user_reminder_idx on public.tasks (user_id, reminder_at);
+create index if not exists tasks_email_reminder_idx on public.tasks (notify_via_email, completed, reminder_at);
 create index if not exists tasks_user_completed_idx on public.tasks (user_id, completed);
 create index if not exists tasks_user_created_idx on public.tasks (user_id, created_at desc);
 create index if not exists notes_user_created_idx on public.notes (user_id, created_at desc);

@@ -10,15 +10,29 @@ function mapTaskPayload(input: {
   title: string;
   description?: string | null;
   dueDate?: string | null;
+  reminderAt?: string | null;
   priority?: "low" | "medium" | "high";
   completed?: boolean;
+  notifyOnSite?: boolean;
+  notifyViaEmail?: boolean;
 }) {
+  const dueDate = input.dueDate ? new Date(input.dueDate).toISOString() : null;
+  const reminderAt = input.reminderAt
+    ? new Date(input.reminderAt).toISOString()
+    : input.notifyOnSite || input.notifyViaEmail
+      ? dueDate
+      : null;
+
   const payload: Omit<TaskInsert, "user_id"> = {
     title: input.title,
     description: input.description?.trim() || null,
-    due_date: input.dueDate ? new Date(input.dueDate).toISOString() : null,
+    due_date: dueDate,
+    reminder_at: reminderAt,
     priority: input.priority ?? "medium",
-    completed: input.completed ?? false
+    completed: input.completed ?? false,
+    notify_on_site: input.notifyOnSite ?? false,
+    notify_via_email: input.notifyViaEmail ?? false,
+    email_notified_at: null
   };
 
   return payload;

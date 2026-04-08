@@ -6,8 +6,12 @@ export type Task = {
   title: string;
   description: string | null;
   due_date: string | null;
+  reminder_at: string | null;
   priority: TaskPriority;
   completed: boolean;
+  notify_on_site: boolean;
+  notify_via_email: boolean;
+  email_notified_at: string | null;
   created_at: string;
 };
 
@@ -28,6 +32,7 @@ export type Profile = {
   country_code: string | null;
   avatar_url: string | null;
   hidden_clock_pages: string[] | null;
+  notification_email: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -59,8 +64,12 @@ export type TaskInsert = {
   title: string;
   description?: string | null;
   due_date?: string | null;
+  reminder_at?: string | null;
   priority?: TaskPriority;
   completed?: boolean;
+  notify_on_site?: boolean;
+  notify_via_email?: boolean;
+  email_notified_at?: string | null;
   created_at?: string;
 };
 
@@ -85,6 +94,7 @@ export type ProfileInsert = {
   country_code?: string | null;
   avatar_url?: string | null;
   hidden_clock_pages?: string[] | null;
+  notification_email?: string | null;
   created_at?: string;
   updated_at?: string;
 };

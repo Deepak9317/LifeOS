@@ -6,13 +6,20 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { profileSchema } from "@/lib/validation";
 import type { Profile, ProfileUpdate } from "@/types";
 
-function isMissingHiddenClockPagesError(message?: string | null) {
+function isMissingProfileColumnError(message: string | null | undefined, column: string) {
   const normalized = (message ?? "").toLowerCase();
 
-  return normalized.includes("hidden_clock_pages") && normalized.includes("schema cache");
+  return normalized.includes(column) && normalized.includes("schema cache");
 }
 
 function buildProfileResponse(user: Awaited<ReturnType<typeof requireApiUser>>, profile: Profile | null, payload: ProfileUpdate) {
+  const notificationEmail =
+    payload.notification_email !== undefined
+      ? payload.notification_email
+      : typeof user.user_metadata.notification_email === "string"
+        ? user.user_metadata.notification_email
+        : null;
+
   return mergeProfileWithUserMetadata(
     profile ?? {
       id: user.id,
@@ -23,6 +30,7 @@ function buildProfileResponse(user: Awaited<ReturnType<typeof requireApiUser>>, 
         payload.country_code ?? (typeof user.user_metadata.country_code === "string" ? user.user_metadata.country_code : null),
       avatar_url: typeof user.user_metadata.avatar_url === "string" ? user.user_metadata.avatar_url : null,
       hidden_clock_pages: payload.hidden_clock_pages ?? getHiddenClockPagesFromMetadata(user),
+      notification_email: notificationEmail,
       created_at: user.created_at,
       updated_at: payload.updated_at ?? new Date().toISOString()
     },
@@ -33,6 +41,7 @@ function buildProfileResponse(user: Awaited<ReturnType<typeof requireApiUser>>, 
         ...(payload.full_name ? { full_name: payload.full_name } : {}),
         ...(payload.timezone ? { timezone: payload.timezone } : {}),
         ...(payload.country_code ? { country_code: payload.country_code } : {}),
+        ...(payload.notification_email !== undefined ? { notification_email: payload.notification_email } : {}),
         ...(payload.hidden_clock_pages ? { hidden_clock_pages: payload.hidden_clock_pages } : {})
       }
     }
@@ -85,6 +94,7 @@ export async function PATCH(request: Request) {
       full_name: parsed.data.full_name,
       timezone: parsed.data.timezone ?? null,
       country_code: parsed.data.country_code ?? null,
+      notification_email: parsed.data.notification_email ?? null,
       updated_at: new Date().toISOString()
     };
 
@@ -93,6 +103,8 @@ export async function PATCH(request: Request) {
     }
 
     const supabase = await createSupabaseServerClient();
+    const fallbackPayload = { ...payload };
+    let strippedColumn = false;
     let profileResponse = await supabase
       .from("profiles")
       .update(payload)
@@ -103,16 +115,27 @@ export async function PATCH(request: Request) {
     if (
       profileResponse.error &&
       includesHiddenClockPages &&
-      isMissingHiddenClockPagesError(profileResponse.error.message)
+      isMissingProfileColumnError(profileResponse.error.message, "hidden_clock_pages")
     ) {
+      delete fallbackPayload.hidden_clock_pages;
+      strippedColumn = true;
       profileResponse = await supabase
         .from("profiles")
-        .update({
-          full_name: parsed.data.full_name,
-          timezone: parsed.data.timezone ?? null,
-          country_code: parsed.data.country_code ?? null,
-          updated_at: payload.updated_at
-        })
+        .update(fallbackPayload)
+        .eq("id", user.id)
+        .select("*")
+        .maybeSingle();
+    }
+
+    if (
+      profileResponse.error &&
+      isMissingProfileColumnError(profileResponse.error.message, "notification_email")
+    ) {
+      delete fallbackPayload.notification_email;
+      strippedColumn = true;
+      profileResponse = await supabase
+        .from("profiles")
+        .update(fallbackPayload)
         .eq("id", user.id)
         .select("*")
         .maybeSingle();
@@ -125,6 +148,7 @@ export async function PATCH(request: Request) {
     await supabase.auth.updateUser({
       data: {
         full_name: parsed.data.full_name,
+        ...(strippedColumn ? {} : { notification_email: parsed.data.notification_email ?? null }),
         ...(includesHiddenClockPages
           ? { hidden_clock_pages: parsed.data.hidden_clock_pages ?? getHiddenClockPagesFromMetadata(user) }
           : {})

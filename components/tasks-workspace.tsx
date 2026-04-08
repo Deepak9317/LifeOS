@@ -7,6 +7,7 @@ import { CheckCircle2, ClipboardList, Eye, Plus, SlidersHorizontal } from "lucid
 import { toast } from "sonner";
 
 import { SetupNotice } from "@/components/setup-notice";
+import { TaskReminderWatcher } from "@/components/task-reminder-watcher";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -124,6 +125,8 @@ export function TasksWorkspace({
 
   return (
     <div className="space-y-8 p-1">
+      <TaskReminderWatcher tasks={tasks} />
+
       <section className="animate-fade-up rounded-[2rem] border border-amber-100/70 bg-[linear-gradient(135deg,rgba(255,252,247,0.98),rgba(254,243,199,0.42),rgba(204,251,241,0.3))] px-6 py-8 text-stone-950 shadow-[0_24px_70px_-40px_rgba(120,53,15,0.16)]">
         <div className="grid gap-5 lg:grid-cols-4">
           <div className="lg:col-span-2">
@@ -219,8 +222,22 @@ export function TasksWorkspace({
                           >
                             {priorityLabel(task.priority)}
                           </span>
+                          {task.notify_on_site || task.notify_via_email ? (
+                            <span className="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-semibold text-teal-700 ring-1 ring-teal-100">
+                              {task.notify_on_site && task.notify_via_email
+                                ? "Site + email"
+                                : task.notify_via_email
+                                  ? "Email"
+                                  : "Site"}
+                            </span>
+                          ) : null}
                         </div>
                         <p className="mt-2 text-sm text-stone-500">{formatTaskDate(task.due_date)}</p>
+                        {task.reminder_at ? (
+                          <p className="mt-1 text-xs font-medium text-teal-700">
+                            Reminder: {formatTaskDate(task.reminder_at)}
+                          </p>
+                        ) : null}
                         {task.description ? (
                           <p className="mt-2 line-clamp-2 text-sm text-stone-600">{task.description}</p>
                         ) : null}

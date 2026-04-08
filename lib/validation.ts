@@ -31,6 +31,7 @@ export const profileSchema = z.object({
   full_name: z.string().trim().min(2, "Enter your full name.").max(80, "Use 80 characters or less."),
   timezone: z.string().trim().min(2).max(80).optional().nullable(),
   country_code: z.string().trim().min(2).max(8).optional().nullable(),
+  notification_email: z.email("Use a valid notification email address.").trim().optional().nullable(),
   hidden_clock_pages: z.array(z.string().trim().min(1).max(40)).max(20).optional()
 });
 
@@ -59,8 +60,11 @@ const taskShape = {
   title: z.string().trim().min(1, "Task title is required.").max(120),
   description: z.string().trim().max(1000).optional().nullable(),
   dueDate: dueDateSchema,
+  reminderAt: dueDateSchema,
   priority: z.enum(["low", "medium", "high"]),
-  completed: z.boolean().optional()
+  completed: z.boolean().optional(),
+  notifyOnSite: z.boolean().optional(),
+  notifyViaEmail: z.boolean().optional()
 };
 
 export const taskSchema = z.object({

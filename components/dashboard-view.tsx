@@ -16,9 +16,11 @@ import {
 import Link from "next/link";
 
 import { SetupNotice } from "@/components/setup-notice";
+import { TaskReminderWatcher } from "@/components/task-reminder-watcher";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Modal } from "@/components/ui/modal";
+import { WeatherWidget } from "@/components/weather-widget";
 import {
   formatFullDate,
   formatTaskDate,
@@ -266,6 +268,8 @@ export function DashboardView({
 
   return (
     <div className="space-y-6 p-1">
+      <TaskReminderWatcher tasks={tasks} />
+
       <section className="animate-fade-up rounded-[2rem] bg-[linear-gradient(135deg,rgba(255,252,247,0.98),rgba(254,243,199,0.42),rgba(204,251,241,0.34))] px-6 py-8 shadow-[0_24px_80px_-42px_rgba(120,53,15,0.16)] sm:px-8">
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.3fr)_360px]">
           <div className="space-y-4">
@@ -439,6 +443,40 @@ export function DashboardView({
                     {pinnedNote?.title || "Pin one note to make Focus Mode more useful."}
                   </p>
                 </div>
+              </div>
+            </Card>
+          </section>
+
+          <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]">
+            <WeatherWidget />
+
+            <Card className="card-hover animate-fade-up rounded-[1.75rem] bg-[rgba(255,253,249,0.96)] p-5 shadow-[0_20px_50px_-38px_rgba(120,53,15,0.14)] [animation-delay:260ms]">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">Task reminders</p>
+              <h2 className="mt-1 text-xl font-bold text-stone-950">Stay ahead of deadlines</h2>
+              <div className="mt-4 space-y-3">
+                {tasks
+                  .filter((task) => !task.completed && (task.notify_on_site || task.notify_via_email))
+                  .slice(0, 3)
+                  .map((task) => (
+                    <div key={task.id} className="rounded-[1.1rem] bg-stone-50 px-4 py-3">
+                      <p className="text-sm font-semibold text-stone-900">{task.title}</p>
+                      <p className="mt-1 text-xs text-stone-500">{formatTaskDate(task.reminder_at ?? task.due_date)}</p>
+                      <p className="mt-2 text-xs font-medium uppercase tracking-[0.14em] text-teal-700">
+                        {task.notify_on_site && task.notify_via_email
+                          ? "Site and email"
+                          : task.notify_via_email
+                            ? "Email reminder"
+                            : "Site reminder"}
+                      </p>
+                    </div>
+                  ))}
+                {tasks.filter((task) => !task.completed && (task.notify_on_site || task.notify_via_email)).length === 0 ? (
+                  <div className="rounded-[1.1rem] bg-stone-50 px-4 py-4">
+                    <p className="text-sm leading-6 text-stone-600">
+                      Add a reminder to any task and LifeOS will nudge you on-site or by email.
+                    </p>
+                  </div>
+                ) : null}
               </div>
             </Card>
           </section>

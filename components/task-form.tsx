@@ -32,8 +32,11 @@ export function TaskForm({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [reminderAt, setReminderAt] = useState("");
   const [priority, setPriority] = useState<TaskPriority>("medium");
   const [completed, setCompleted] = useState(false);
+  const [notifyOnSite, setNotifyOnSite] = useState(false);
+  const [notifyViaEmail, setNotifyViaEmail] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -43,16 +46,22 @@ export function TaskForm({
     setTitle(initialTask?.title ?? "");
     setDescription(initialTask?.description ?? "");
     setDueDate(toDateTimeLocalValue(initialTask?.due_date));
+    setReminderAt(toDateTimeLocalValue(initialTask?.reminder_at));
     setPriority(initialTask?.priority ?? "medium");
     setCompleted(initialTask?.completed ?? false);
+    setNotifyOnSite(initialTask?.notify_on_site ?? false);
+    setNotifyViaEmail(initialTask?.notify_via_email ?? false);
   }, [initialTask]);
 
   const reset = () => {
     setTitle("");
     setDescription("");
     setDueDate("");
+    setReminderAt("");
     setPriority("medium");
     setCompleted(false);
+    setNotifyOnSite(false);
+    setNotifyViaEmail(false);
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -60,6 +69,10 @@ export function TaskForm({
     setSubmitting(true);
 
     try {
+      if (notifyOnSite && "Notification" in window && Notification.permission === "default") {
+        await Notification.requestPermission().catch(() => null);
+      }
+
       const response = await fetch(isEditing ? `/api/tasks/${initialTask?.id}` : "/api/tasks", {
         method: isEditing ? "PATCH" : "POST",
         headers: {
@@ -69,8 +82,11 @@ export function TaskForm({
           title,
           description: description || null,
           dueDate: dueDate || null,
+          reminderAt: reminderAt || null,
           priority,
-          completed
+          completed,
+          notifyOnSite,
+          notifyViaEmail
         })
       });
 
@@ -187,6 +203,48 @@ export function TaskForm({
               type="datetime-local"
               value={dueDate}
             />
+          </div>
+        </div>
+
+        <div className={cn("grid gap-4", compact ? "" : "sm:grid-cols-2")}>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-800" htmlFor="task-reminder-at">
+              Reminder time
+            </label>
+            <Input
+              id="task-reminder-at"
+              onChange={(event) => setReminderAt(event.target.value)}
+              type="datetime-local"
+              value={reminderAt}
+            />
+            <p className="text-xs text-slate-500">
+              Leave blank to use the due date when reminders are enabled.
+            </p>
+          </div>
+
+          <div className="space-y-3 rounded-[1.25rem] border border-slate-200 bg-slate-50 px-4 py-4">
+            <p className="text-sm font-medium text-slate-800">Reminder channels</p>
+            <label className="flex items-center gap-3 text-sm text-slate-700">
+              <input
+                checked={notifyOnSite}
+                className="size-4 rounded border-slate-300 text-teal-500 focus:ring-teal-500"
+                onChange={(event) => setNotifyOnSite(event.target.checked)}
+                type="checkbox"
+              />
+              Notify me in the site
+            </label>
+            <label className="flex items-center gap-3 text-sm text-slate-700">
+              <input
+                checked={notifyViaEmail}
+                className="size-4 rounded border-slate-300 text-teal-500 focus:ring-teal-500"
+                onChange={(event) => setNotifyViaEmail(event.target.checked)}
+                type="checkbox"
+              />
+              Send reminder by email
+            </label>
+            <p className="text-xs text-slate-500">
+              Email reminders use the address saved in Profile.
+            </p>
           </div>
         </div>
 

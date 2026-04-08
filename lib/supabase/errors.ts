@@ -5,6 +5,7 @@ const setupErrorMatchers = [
   "schema cache",
   "column tasks.",
   "column notes.",
+  "column profiles.",
   "column budget_entries.",
   "column budget_settings.",
   "relation \"public.tasks\" does not exist",

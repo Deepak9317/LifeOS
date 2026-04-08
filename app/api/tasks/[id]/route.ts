@@ -10,8 +10,11 @@ function mapTaskUpdate(input: {
   title?: string;
   description?: string | null;
   dueDate?: string | null;
+  reminderAt?: string | null;
   priority?: "low" | "medium" | "high";
   completed?: boolean;
+  notifyOnSite?: boolean;
+  notifyViaEmail?: boolean;
 }) {
   const payload: TaskUpdate = {};
 
@@ -27,12 +30,36 @@ function mapTaskUpdate(input: {
     payload.due_date = input.dueDate ? new Date(input.dueDate).toISOString() : null;
   }
 
+  if (input.reminderAt !== undefined) {
+    payload.reminder_at = input.reminderAt ? new Date(input.reminderAt).toISOString() : null;
+    payload.email_notified_at = null;
+  }
+
   if (input.priority !== undefined) {
     payload.priority = input.priority;
   }
 
   if (input.completed !== undefined) {
     payload.completed = input.completed;
+  }
+
+  if (input.notifyOnSite !== undefined) {
+    payload.notify_on_site = input.notifyOnSite;
+  }
+
+  if (input.notifyViaEmail !== undefined) {
+    payload.notify_via_email = input.notifyViaEmail;
+    payload.email_notified_at = null;
+  }
+
+  const hasReminderChannel = Boolean(
+    (input.notifyOnSite ?? payload.notify_on_site ?? false) ||
+      (input.notifyViaEmail ?? payload.notify_via_email ?? false)
+  );
+
+  if (payload.reminder_at === undefined && hasReminderChannel && payload.due_date) {
+    payload.reminder_at = payload.due_date;
+    payload.email_notified_at = null;
   }
 
   return payload;

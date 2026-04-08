@@ -7,7 +7,9 @@ LifeOS is a production-ready SaaS productivity dashboard built with Next.js App 
 - Secure Supabase email/password authentication
 - Cookie-based session handling with middleware route protection
 - Dashboard with today's tasks, recent notes, quick-add panels, and a live world clock
+- Weather widget with a cheeky local forecast line
 - Full task CRUD with filters for today, pending, and completed
+- Task reminders with on-site notifications and optional email delivery
 - Full note CRUD with tags, search, and a pinned-note workflow for Focus Mode
 - Focus Mode for today's execution plus one pinned note
 - Toasts, loading states, empty states, and mobile-responsive navigation
@@ -40,6 +42,10 @@ cp .env.example .env.local
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_your_key
+SUPABASE_SERVICE_ROLE_KEY=sb_secret_your_server_only_key
+RESEND_API_KEY=re_your_resend_key
+REMINDER_FROM_EMAIL=LifeOS <reminders@yourdomain.com>
+CRON_SECRET=your_random_cron_secret
 ```
 
 4. Run the SQL in [supabase/setup.sql](/C:/Users/Asus/Desktop/LifeOS/supabase/setup.sql) inside the Supabase SQL editor.
@@ -64,7 +70,7 @@ The full schema and policies live in [supabase/setup.sql](/C:/Users/Asus/Desktop
 What the SQL does:
 
 - Creates the `task_priority` enum
-- Creates `tasks` and `notes` with the required columns
+- Creates `tasks`, `notes`, and profile reminder settings with the required columns
 - Adds useful indexes for user-scoped queries
 - Enables and forces Row Level Security on both tables
 - Enforces `auth.uid() = user_id` for select, insert, update, and delete
@@ -79,12 +85,16 @@ The app only needs two public Supabase values because all database access is sti
 
 - `NEXT_PUBLIC_SUPABASE_URL`: your Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: your Supabase publishable key
+- `SUPABASE_SERVICE_ROLE_KEY`: required for admin routes and reminder cron processing
+- `RESEND_API_KEY`: required if you want task reminder emails
+- `REMINDER_FROM_EMAIL`: verified sender address used for reminder emails
+- `CRON_SECRET`: bearer token used to secure the Vercel cron endpoint
 
 Compatibility note:
 
 - The code also accepts `NEXT_PUBLIC_SUPABASE_ANON_KEY` as a fallback for older Supabase projects, but the preferred variable is `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 
-Never add the Supabase service role key to this app.
+Keep `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `REMINDER_FROM_EMAIL`, and `CRON_SECRET` server-only.
 
 ## Vercel deployment
 
@@ -93,11 +103,15 @@ Never add the Supabase service role key to this app.
 3. Add the same environment variables from `.env.local` to the Vercel project:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `RESEND_API_KEY`
+   - `REMINDER_FROM_EMAIL`
+   - `CRON_SECRET`
 4. Deploy.
 5. In Supabase Auth settings, add your Vercel production URL to the allowed redirect/site URL settings.
 6. Re-deploy if you change environment variables.
 
-This project does not contain hardcoded secrets and is ready for Vercel's standard Next.js build pipeline.
+This project includes a Vercel cron job for task reminder emails and is ready for Vercel's standard Next.js build pipeline.
 
 ## Folder structure
 
